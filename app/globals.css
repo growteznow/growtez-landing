@@ -1,26 +1,107 @@
+/* ─── Google Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ─── Tailwind v4 ─────────────────────────────────────────────────────────── */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─── Custom Theme Tokens ──────────────────────────────────────────────────── */
+@theme {
+  --font-outfit: 'Outfit', sans-serif;
+  --font-inter:  'Inter', sans-serif;
+
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+
+  --animate-float:         float 8s ease-in-out infinite;
+  --animate-float-reverse: float-reverse 10s ease-in-out infinite;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ─── Base Resets ──────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  html {
+    scroll-behavior: auto; /* Lenis handles scroll physics */
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #000000;
+    overflow-x: hidden;
+    font-family: var(--font-inter), system-ui, sans-serif;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Keyframes ────────────────────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%       { transform: translateY(-40px) scale(1.05); }
+}
+
+@keyframes float-reverse {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%       { transform: translateY(40px) scale(0.95); }
+}
+
+/* ─── Custom Utilities (Tailwind v4 @utility syntax) ───────────────────────── */
+@utility font-display {
+  font-family: var(--font-outfit), system-ui, sans-serif;
+}
+
+@utility glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+@utility text-gradient {
+  background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 50%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+@utility orb-teal {
+  background: radial-gradient(circle at center, rgba(20, 184, 166, 0.35) 0%, transparent 70%);
+}
+
+@utility orb-indigo {
+  background: radial-gradient(circle at center, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+}
+
+@utility animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+@utility animate-float-reverse {
+  animation: float-reverse 10s ease-in-out infinite;
+}
+
+@utility service-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+@utility timeline-line {
+  transform-origin: top center;
 }
