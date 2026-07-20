@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import Preloader from "@/components/Preloader";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import CustomCursor from "@/components/CustomCursor";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -36,10 +39,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${jakarta.variable} ${inter.variable}`}>
       <body className="antialiased font-[var(--font-inter)]">
-        {/* Preloader sits at the highest z-index and runs first */}
-        <Preloader />
+        {/* Preloader is temporarily disabled as requested */}
+        {/* <Preloader /> */}
+        <CustomCursor />
         <SmoothScroll>
+          <Navbar />
           {children}
+          <Footer />
         </SmoothScroll>
       </body>
     </html>
