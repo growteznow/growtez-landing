@@ -7,12 +7,12 @@
 /* ─── Custom Theme Tokens ──────────────────────────────────────────────────── */
 @theme {
   --font-outfit: 'Outfit', sans-serif;
-  --font-inter:  'Inter', sans-serif;
+  --font-inter: 'Inter', sans-serif;
 
   --color-teal-400: #2dd4bf;
   --color-teal-500: #14b8a6;
 
-  --animate-float:         float 8s ease-in-out infinite;
+  --animate-float: float 8s ease-in-out infinite;
   --animate-float-reverse: float-reverse 10s ease-in-out infinite;
 }
 
@@ -28,7 +28,8 @@
   }
 
   html {
-    scroll-behavior: auto; /* Lenis handles scroll physics */
+    scroll-behavior: auto;
+    /* Lenis handles scroll physics */
   }
 
   html.lenis,
@@ -46,13 +47,27 @@
 
 /* ─── Keyframes ────────────────────────────────────────────────────────────── */
 @keyframes float {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50%       { transform: translateY(-40px) scale(1.05); }
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+
+  50% {
+    transform: translateY(-40px) scale(1.05);
+  }
 }
 
 @keyframes float-reverse {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50%       { transform: translateY(40px) scale(0.95); }
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+
+  50% {
+    transform: translateY(40px) scale(0.95);
+  }
 }
 
 /* ─── Custom Utilities (Tailwind v4 @utility syntax) ───────────────────────── */
@@ -76,8 +91,8 @@
 
 @utility bg-grid {
   background-image:
-    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
   background-size: 60px 60px;
 }
 

@@ -5,9 +5,9 @@ import gsap from "gsap";
 
 export default function Preloader() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const ghostRef    = useRef<HTMLSpanElement>(null);  // large ghost number
-  const percentRef  = useRef<HTMLSpanElement>(null);  // bottom % label
-  const barRef      = useRef<HTMLDivElement>(null);
+  const ghostRef = useRef<HTMLSpanElement>(null);  // large ghost number
+  const percentRef = useRef<HTMLSpanElement>(null);  // bottom % label
+  const barRef = useRef<HTMLDivElement>(null);
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
@@ -24,17 +24,17 @@ export default function Preloader() {
       onUpdate: () => {
         const rounded = Math.round(counter.value);
         // Update both DOM nodes directly — zero re-renders
-        if (ghostRef.current)   ghostRef.current.innerText   = `${rounded}`;
+        if (ghostRef.current) ghostRef.current.innerText = `${rounded}`;
         if (percentRef.current) percentRef.current.innerText = `${rounded}%`;
-        if (barRef.current)     barRef.current.style.width   = `${rounded}%`;
+        if (barRef.current) barRef.current.style.width = `${rounded}%`;
       },
     })
-    .to({}, { duration: 0.3 })
-    .to(containerRef.current, {
-      yPercent: -100,
-      duration: 1.1,
-      ease: "power4.inOut",
-    });
+      .to({}, { duration: 0.3 })
+      .to(containerRef.current, {
+        yPercent: -100,
+        duration: 1.1,
+        ease: "power4.inOut",
+      });
   }, []);
 
   if (isComplete) return null;
