@@ -4,11 +4,54 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, Star } from "lucide-react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion } from "framer-motion";
 
 import { FONT_DISPLAY, FONT_BODY, TEAL_400, TEAL_500 } from "@/lib/constants";
-import { services, portfolio, testimonials } from "@/lib/data";
+import { portfolio, testimonials } from "@/lib/data";
 import InteractiveBackground from "@/components/InteractiveBackground";
 import MouseGlow from "@/components/MouseGlow";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const serviceCards = [
+  {
+    image: "/service_brand.png",
+    title: "Brand Identity",
+    alt: "Brand Identity",
+    desc: "Strategic design that positions AI products for trust and clarity.",
+  },
+  {
+    image: "/service_mobile.png",
+    title: "AI-enhanced UX/UI design",
+    alt: "AI-enhanced UX/UI design",
+    desc: "Interfaces that adapt, predict, and respond intelligently.",
+  },
+  {
+    image: "/service_laptop.png",
+    title: "Custom development",
+    alt: "Custom development",
+    desc: "Websites, apps, and systems engineered for reliable growth.",
+  },
+  {
+    image: "/service_brand.png",
+    title: "Growth strategy",
+    alt: "Growth strategy",
+    desc: "Focused roadmaps that connect product decisions to measurable business outcomes.",
+  },
+  {
+    image: "/service_mobile.png",
+    title: "App development",
+    alt: "App development",
+    desc: "Mobile products built for performance, scalability, and delightful everyday use.",
+  },
+  {
+    image: "/service_laptop.png",
+    title: "AI integration",
+    alt: "AI integration",
+    desc: "Custom AI workflows and automation that make operations faster and smarter.",
+  },
+];
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -26,6 +69,9 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
+  const servicesSectionRef = useRef<HTMLElement>(null);
+  const servicesPanelRef = useRef<HTMLDivElement>(null);
+  const servicesTrackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!heroRef.current) return;
@@ -38,23 +84,55 @@ export default function Home() {
     );
   }, []);
 
+  useEffect(() => {
+    const panel = servicesPanelRef.current;
+    const track = servicesTrackRef.current;
+    if (!panel || !track) return;
+
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
+        const getScrollDistance = () => {
+          const overflow = track.scrollWidth - window.innerWidth;
+          return Math.max(overflow, window.innerHeight * 1.25);
+        };
+
+        gsap.to(track, {
+          x: () => {
+            const overflow = track.scrollWidth - window.innerWidth;
+            return overflow > 0 ? -overflow : 0;
+          },
+          ease: "none",
+          scrollTrigger: {
+            trigger: panel,
+            pin: true,
+            start: "center center",
+            end: () => `+=${getScrollDistance()}`,
+            scrub: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+      });
+
+      return () => mm.revert();
+    }, panel);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <div className="w-full flex flex-col" style={{
       background: "#ffffff url('/bg2.png') center/cover fixed no-repeat",
     }}>
       {/* ── HERO ── */}
-      <section style={{
-        position: "relative", minHeight: "100vh", width: "100%",
-        background: "transparent",
-        display: "flex", flexDirection: "column",
-        justifyContent: "center",
-      }}>
+      <section className="relative w-full bg-transparent flex flex-col justify-center pt-24 pb-16 md:pt-32 md:pb-24">
         <InteractiveBackground />
-        <div ref={heroRef} className="flex-none flex flex-col items-center text-center px-4 py-12 md:px-10 md:py-20 relative z-10 w-full max-w-5xl mx-auto">
+        <div ref={heroRef} className="flex-none flex flex-col items-center text-center px-6 md:px-10 relative z-10 w-full max-w-[1200px] mx-auto">
           {/* H1 Heading */}
           <div className="overflow-hidden pb-1 w-full">
-            <h1 className="hero-reveal m-0 leading-[1.15] md:leading-none">
-              <span className="block font-bold text-black tracking-tight text-[clamp(2rem,8vw,5rem)]" style={FONT_DISPLAY}>
+            <h1 className="hero-reveal m-0 leading-[1.1] md:leading-[1.05]">
+              <span className="block font-bold text-black tracking-tighter text-[clamp(2rem,6vw,4.5rem)]" style={FONT_DISPLAY}>
                 We create solutions<br className="hidden md:block" />
                 <span className="md:hidden"> </span>for your business
               </span>
@@ -62,83 +140,69 @@ export default function Home() {
           </div>
 
           {/* Subheading */}
-          <div className="mt-4 md:mt-6 flex flex-col items-center px-2 w-full max-w-2xl">
+          <div className="mt-4 md:mt-6 flex flex-col items-center px-2 w-full max-w-3xl">
             <div className="overflow-hidden pb-2">
-              <p className="hero-reveal m-0 text-black font-normal leading-relaxed text-[clamp(0.95rem,3.5vw,1.1rem)]" style={FONT_BODY}>
+              <p className="hero-reveal m-0 text-gray-700 font-medium leading-relaxed text-[clamp(0.95rem,1.5vw,1.15rem)]" style={FONT_BODY}>
                 From concept to launch, Growtez crafts web apps, mobile products, and AI systems that actually move the needle.
               </p>
             </div>
           </div>
 
-          <div className="overflow-hidden mt-8 md:mt-10 pt-1 pb-4 w-full px-4 md:px-0">
-            <div className="hero-reveal flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
-              <Link href="/contact" className="inline-flex items-center justify-center gap-2 px-8 py-3.5 md:py-[13px] md:px-[30px] rounded-full text-white text-[1rem] md:text-[0.9rem] font-bold no-underline transition-colors w-full sm:w-auto" style={{
-                background: TEAL_500, ...FONT_BODY,
-              }}
-                onMouseEnter={e => (e.currentTarget.style.background = TEAL_400)}
-                onMouseLeave={e => (e.currentTarget.style.background = TEAL_500)}>
-                Start a Project <ArrowRight size={15} />
-              </Link>
-              <Link href="/portfolio" className="inline-flex items-center justify-center gap-2 px-8 py-3.5 md:py-[13px] md:px-[30px] rounded-full bg-transparent border border-black/10 text-slate-700 text-[1rem] md:text-[0.9rem] font-semibold no-underline transition-colors w-full sm:w-auto" style={{
-                ...FONT_BODY,
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = TEAL_500; e.currentTarget.style.color = TEAL_500; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.1)"; e.currentTarget.style.color = "#334155"; }}>
-                View Work
-              </Link>
-            </div>
+          {/* Video Container */}
+          <div className="hero-reveal w-full max-w-5xl mx-auto aspect-video mt-8 md:mt-12 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative bg-slate-100 shadow-2xl border border-black/5">
+            <video
+              src="/video.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </section>
 
       {/* ── SERVICES ── */}
-      <section className="relative w-full bg-white py-32 px-6 md:px-12 flex items-center justify-center">
-        <div className="max-w-7xl mx-auto w-full">
-
-          <div className="mb-24 max-w-2xl">
+      <section ref={servicesSectionRef} className="relative w-full overflow-visible bg-white">
+        <div className="max-w-7xl mx-auto w-full px-6 pt-24 pb-14 md:px-12 md:pt-32 md:pb-20">
+          <div className="max-w-2xl">
             <h2 className="text-[clamp(2.5rem,5vw,4rem)] font-bold text-black tracking-tight leading-[1.05]" style={FONT_DISPLAY}>
               Our services
             </h2>
-            <p className="mt-6 text-xl md:text-2xl text-slate-500 font-medium leading-relaxed" style={FONT_BODY}>
+            <p className="mt-4 text-lg md:text-xl text-slate-500 font-medium leading-relaxed" style={FONT_BODY}>
               We build websites, apps, AI solutions, and digital experiences that drive business growth.
             </p>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-24 items-start">
-
-            {/* Left Column (Card 1) */}
-            <div className="flex flex-col md:mt-48">
-              <div className="w-full overflow-hidden rounded-[2rem] bg-slate-100 aspect-[4/5] relative">
-                <img src="/service_brand.png" alt="Brand Identity" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-out" />
-              </div>
-              <h3 className="mt-10 text-3xl font-bold text-black tracking-tight" style={FONT_DISPLAY}>Brand Identity</h3>
-              <p className="mt-4 text-lg text-slate-500 max-w-md" style={FONT_BODY}>
-                Strategic design that positions AI products for trust and clarity.
-              </p>
+        <div ref={servicesPanelRef} className="relative z-30 w-full bg-white pb-16 md:pb-20 overflow-hidden">
+          <div className="w-full pb-8">
+            <div ref={servicesTrackRef} className="flex flex-col md:flex-row md:w-max gap-12 md:gap-10 px-6 md:pl-[max(3rem,calc((100vw-80rem)/2+3rem))] md:pr-12">
+              {serviceCards.map((service, i) => (
+                <motion.article
+                  key={`${service.title}-${i}`}
+                  className="service-card w-full max-w-[480px] mx-auto md:mx-0 md:shrink-0 md:w-[clamp(400px,40vw,500px)]"
+                  initial={{ opacity: 0, y: 34 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.25 }}
+                  transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.05 }}
+                >
+                  <div className="w-full overflow-hidden rounded-[2rem] bg-slate-100 aspect-video relative">
+                    <img
+                      src={service.image}
+                      alt={service.alt}
+                      className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                  </div>
+                  <h3 className="mt-6 text-2xl md:text-[1.65rem] font-bold text-black tracking-tight leading-tight" style={FONT_DISPLAY}>
+                    {service.title}
+                  </h3>
+                  <p className="mt-2 text-base md:text-[1.05rem] text-slate-500 max-w-md leading-relaxed" style={FONT_BODY}>
+                    {service.desc}
+                  </p>
+                </motion.article>
+              ))}
             </div>
-
-            {/* Right Column (Cards 2 and 3) */}
-            <div className="flex flex-col gap-32">
-              {/* Card 2 */}
-              <div className="flex flex-col">
-                <div className="w-full overflow-hidden rounded-[2rem] bg-slate-100 aspect-[4/5] relative">
-                  <img src="/service_mobile.png" alt="AI-enhanced UX/UI design" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-out" />
-                </div>
-                <h3 className="mt-10 text-3xl font-bold text-black tracking-tight" style={FONT_DISPLAY}>AI-enhanced UX/UI design</h3>
-                <p className="mt-4 text-lg text-slate-500 max-w-md" style={FONT_BODY}>
-                  Interfaces that adapt, predict, and respond intelligently.
-                </p>
-              </div>
-
-              {/* Card 3 */}
-              <div className="flex flex-col">
-                <div className="w-full overflow-hidden rounded-[2rem] bg-slate-100 aspect-square relative">
-                  <img src="/service_laptop.png" alt="Custom development" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-out" />
-                </div>
-                <h3 className="mt-10 text-3xl font-bold text-black tracking-tight" style={FONT_DISPLAY}>Custom development</h3>
-              </div>
-            </div>
-
           </div>
         </div>
       </section>
