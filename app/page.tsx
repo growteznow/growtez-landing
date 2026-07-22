@@ -16,10 +16,22 @@ gsap.registerPlugin(ScrollTrigger);
 
 const serviceCards = [
   {
-    image: "/service_brand.png",
-    title: "Brand Identity",
-    alt: "Brand Identity",
-    desc: "Strategic design that positions AI products for trust and clarity.",
+    image: "/service_mobile.png",
+    title: "App development",
+    alt: "App development",
+    desc: "Mobile products built for performance, scalability, and delightful everyday use.",
+  },
+  {
+    image: "/service_laptop.png",
+    title: "Web development",
+    alt: "Web development",
+    desc: "Websites, web apps, and systems engineered for reliable growth.",
+  },
+  {
+    image: "/service_laptop.png",
+    title: "AI integration",
+    alt: "AI integration",
+    desc: "Custom AI workflows and automation that make operations faster and smarter.",
   },
   {
     image: "/service_mobile.png",
@@ -28,28 +40,10 @@ const serviceCards = [
     desc: "Interfaces that adapt, predict, and respond intelligently.",
   },
   {
-    image: "/service_laptop.png",
-    title: "Custom development",
-    alt: "Custom development",
-    desc: "Websites, apps, and systems engineered for reliable growth.",
-  },
-  {
     image: "/service_brand.png",
-    title: "Growth strategy",
-    alt: "Growth strategy",
-    desc: "Focused roadmaps that connect product decisions to measurable business outcomes.",
-  },
-  {
-    image: "/service_mobile.png",
-    title: "App development",
-    alt: "App development",
-    desc: "Mobile products built for performance, scalability, and delightful everyday use.",
-  },
-  {
-    image: "/service_laptop.png",
-    title: "AI integration",
-    alt: "AI integration",
-    desc: "Custom AI workflows and automation that make operations faster and smarter.",
+    title: "Digital marketing",
+    alt: "Digital marketing",
+    desc: "Focused roadmaps and strategies that connect product decisions to measurable business outcomes.",
   },
 ];
 
@@ -149,14 +143,22 @@ export default function Home() {
           </div>
 
           {/* Video Container */}
-          <div className="hero-reveal w-full max-w-5xl mx-auto aspect-video mt-8 md:mt-12 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative bg-slate-100 shadow-2xl border border-black/5">
+          <div className="hero-reveal w-full max-w-5xl mx-auto mt-8 md:mt-12 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative bg-slate-100 shadow-2xl border border-black/5">
             <video
-              src="/video.mp4"
+              src="/promo-portrait.mp4"
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-full object-cover"
+              className="w-full h-auto block md:hidden"
+            />
+            <video
+              src="/promo-desktop.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-auto hidden md:block"
             />
           </div>
         </div>
@@ -181,17 +183,17 @@ export default function Home() {
               {serviceCards.map((service, i) => (
                 <motion.article
                   key={`${service.title}-${i}`}
-                  className="service-card w-full max-w-[480px] mx-auto md:mx-0 md:shrink-0 md:w-[clamp(400px,40vw,500px)]"
+                  className="service-card w-full max-w-[480px] mx-auto md:mx-0 shrink-0 md:w-[clamp(280px,28vw,380px)]"
                   initial={{ opacity: 0, y: 34 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.25 }}
                   transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.05 }}
                 >
-                  <div className="w-full overflow-hidden rounded-[2rem] bg-slate-100 aspect-video relative">
+                  <div className="overflow-hidden rounded-[2rem] bg-slate-100 relative">
                     <img
                       src={service.image}
                       alt={service.alt}
-                      className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-out"
+                      className="w-full h-auto hover:scale-105 transition-transform duration-700 ease-out block"
                     />
                   </div>
                   <h3 className="mt-6 text-2xl md:text-[1.65rem] font-bold text-black tracking-tight leading-tight" style={FONT_DISPLAY}>
