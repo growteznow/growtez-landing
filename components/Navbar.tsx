@@ -32,10 +32,6 @@ export default function Navbar() {
   // suppress unused var warning
   void isHome;
 
-  useEffect(() => {
-    if (!navRef.current) return;
-    gsap.fromTo(navRef.current, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.9, ease: "power3.out" });
-  }, []);
 
   // Hide navbar on scroll down, show on scroll up
   useEffect(() => {
@@ -74,7 +70,7 @@ export default function Navbar() {
     <nav
       ref={navRef}
       style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, opacity: 0,
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
         background: navBg,
         backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
         borderBottom: `1px solid ${navBorder}`,
