@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
-  FONT_DISPLAY, FONT_BODY, PAGE_BG, SLATE_400, SLATE_500, TEAL_400, TEAL_500
+  FONT_BODY, PAGE_BG, SLATE_400, SLATE_500, TEAL_400, TEAL_500
 } from "@/lib/constants";
 
 export default function Footer({ forceRender = false }: { forceRender?: boolean }) {
@@ -12,8 +13,8 @@ export default function Footer({ forceRender = false }: { forceRender?: boolean 
         <div className="grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr]" style={{ gap: 40, marginBottom: 48 }}>
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" style={{ fontSize: "1.4rem", fontWeight: 800, letterSpacing: "-0.03em", color: "#000000", textDecoration: "none", ...FONT_DISPLAY }}>
-              growtez
+            <Link href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+              <Image src="/footer-logo.png" alt="Growtez" width={140} height={44} style={{ height: 38, width: "auto", objectFit: "contain" }} />
             </Link>
             <p style={{ marginTop: 16, fontSize: "0.875rem", lineHeight: 1.75, color: SLATE_500, maxWidth: 280 }}>
               Building digital products that help ambitious businesses grow faster and smarter.

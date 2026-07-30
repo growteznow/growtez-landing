@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import gsap from "gsap";
 import { Menu, X } from "lucide-react";
-import { FONT_DISPLAY, TEAL_400, TEAL_500 } from "@/lib/constants";
+import { TEAL_500 } from "@/lib/constants";
 
 export default function Navbar() {
   const navRef = useRef<HTMLElement>(null);
@@ -83,8 +84,8 @@ export default function Navbar() {
     >
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         {/* Logo */}
-        <Link href="/" style={{ fontSize: "1.5rem", fontWeight: 800, color: logoColor, textDecoration: "none", letterSpacing: "-0.03em", transition: "color 0.3s", ...FONT_DISPLAY }}>
-          growtez
+        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+          <Image src="/logo.png" alt="Growtez" width={130} height={40} style={{ height: 36, width: "auto", objectFit: "contain" }} priority />
         </Link>
         
         {/* Desktop links */}

@@ -127,7 +127,7 @@ export default function Home() {
           <div className="overflow-hidden pb-1 w-full">
             <h1 className="hero-reveal m-0 leading-[1.1] md:leading-[1.05]">
               <span className="block font-bold text-black tracking-tighter text-[clamp(2rem,6vw,4.5rem)]" style={FONT_DISPLAY}>
-                We create solutions<br className="hidden md:block" />
+                We create <span style={{ color: TEAL_500 }}>solutions</span><br className="hidden md:block" />
                 <span className="md:hidden"> </span>for your business
               </span>
             </h1>
@@ -169,7 +169,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto w-full px-6 pt-24 pb-14 md:px-12 md:pt-32 md:pb-20">
           <div className="max-w-2xl">
             <h2 className="text-[clamp(2.5rem,5vw,4rem)] font-bold text-black tracking-tight leading-[1.05]" style={FONT_DISPLAY}>
-              Our services
+              Our <span style={{ color: TEAL_500 }}>services</span>
             </h2>
             <p className="mt-4 text-lg md:text-xl text-slate-500 font-medium leading-relaxed" style={FONT_BODY}>
               We build websites, apps, AI solutions, and digital experiences that drive business growth.
