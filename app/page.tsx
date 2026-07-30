@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Star } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { FONT_DISPLAY, FONT_BODY, TEAL_400, TEAL_500 } from "@/lib/constants";
 import { portfolio, testimonials } from "@/lib/data";
@@ -62,13 +62,40 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 export default function Home() {
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
   const heroRef = useRef<HTMLDivElement>(null);
   const servicesSectionRef = useRef<HTMLElement>(null);
   const servicesPanelRef = useRef<HTMLDivElement>(null);
   const servicesTrackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!heroRef.current) return;
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.floor(Math.random() * 8) + 2;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 400);
+      }
+      setLoadingProgress(progress);
+    }, 40);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (isLoading || !heroRef.current) return;
     // Animate the text sliding up from behind an overflow-hidden mask
     const elements = heroRef.current.querySelectorAll(".hero-reveal");
     gsap.fromTo(
@@ -76,7 +103,7 @@ export default function Home() {
       { y: 60, opacity: 0 },
       { y: 0, opacity: 1, duration: 1.0, stagger: 0.2, ease: "power4.out", delay: 0.1 }
     );
-  }, []);
+  }, [isLoading]);
 
   useEffect(() => {
     const panel = servicesPanelRef.current;
@@ -116,9 +143,24 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="w-full flex flex-col" style={{
-      background: "#ffffff url('/bg2.png') center/cover fixed no-repeat",
-    }}>
+    <>
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            initial={{ y: 0 }}
+            exit={{ y: "-100%" }}
+            transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-white"
+          >
+            <div className="text-[clamp(4rem,10vw,8rem)] font-bold text-black tracking-tighter flex items-baseline gap-1" style={FONT_DISPLAY}>
+              {loadingProgress}<span style={{ color: TEAL_500, fontSize: "0.75em" }}>%</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className="w-full flex flex-col" style={{
+        background: "#ffffff url('/bg2.png') center/cover fixed no-repeat",
+      }}>
       {/* ── HERO ── */}
       <section className="relative w-full bg-transparent flex flex-col justify-center pt-24 pb-16 md:pt-32 md:pb-24">
         <InteractiveBackground />
@@ -344,5 +386,6 @@ export default function Home() {
         </div>
       </section>
     </div>
+    </>
   );
 }
