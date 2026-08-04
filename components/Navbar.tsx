@@ -13,22 +13,23 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
-  // On homepage: transparent dark bg on dark slides. Other pages: white
+  // On homepage: transparent at top. Other pages: white
   const isHome = pathname === "/";
+  const isTransparent = isHome && !scrolled;
 
-  // Both home and other pages: white nav bar
-  const navBg     = isHome ? "transparent" : "#ffffff";
-  const navBorder = isHome ? "transparent" : "rgba(0,0,0,0.05)";
-  const logoColor = "#000000";
-  const linkColor = "#000000";
-  const mobileDrawerBg     = "#ffffff";
-  const mobileDrawerBorder = "rgba(0,0,0,0.05)";
-  const mobileLinkColor    = "#000000";
-  const dropdownBg         = "#ffffff";
-  const dropdownBorder     = "rgba(0,0,0,0.06)";
-  const dropdownLinkColor  = "#475569";
+  const navBg     = isTransparent ? "transparent" : "rgba(10,10,10,0.95)";
+  const navBorder = isTransparent ? "transparent" : "rgba(255,255,255,0.05)";
+  const logoColor = "#ffffff";
+  const linkColor = "#ffffff";
+  const mobileDrawerBg     = "#0a0a0a";
+  const mobileDrawerBorder = "rgba(255,255,255,0.05)";
+  const mobileLinkColor    = "#ffffff";
+  const dropdownBg         = "#0a0a0a";
+  const dropdownBorder     = "rgba(255,255,255,0.06)";
+  const dropdownLinkColor  = "#cbd5e1";
   // suppress unused var warning
   void isHome;
 
@@ -38,8 +39,14 @@ export default function Navbar() {
     let lastScrollY = window.scrollY;
     const threshold = 1; // px of scroll needed to trigger hide/show
 
+    // Initialize scrolled state based on initial load position
+    setScrolled(window.scrollY > 50);
+
     const handleScroll = () => {
       const currentY = window.scrollY;
+      
+      setScrolled(currentY > 50);
+
       if (currentY > lastScrollY + threshold) {
         setHidden(true);
       } else if (currentY < lastScrollY - threshold) {
@@ -81,7 +88,20 @@ export default function Navbar() {
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         {/* Logo */}
         <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
-          <Image src="/logo.png" alt="Growtez" width={130} height={40} style={{ height: 36, width: "auto", objectFit: "contain" }} priority />
+          <Image 
+            src="/logo.png" 
+            alt="Growtez" 
+            width={130} 
+            height={40} 
+            style={{ 
+              height: 36, 
+              width: "auto", 
+              objectFit: "contain",
+              filter: "brightness(0) invert(1)",
+              transition: "filter 0.4s"
+            }} 
+            priority 
+          />
         </Link>
         
         {/* Desktop links */}

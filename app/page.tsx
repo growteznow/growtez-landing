@@ -71,6 +71,13 @@ export default function Home() {
   const servicesSectionRef = useRef<HTMLElement>(null);
   const servicesPanelRef = useRef<HTMLDivElement>(null);
   const servicesTrackRef = useRef<HTMLDivElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (bgVideoRef.current) {
+      bgVideoRef.current.playbackRate = 0.4;
+    }
+  }, []);
 
   useEffect(() => {
     if (!isInitialLoad) return;
@@ -155,28 +162,28 @@ export default function Home() {
             initial={{ y: 0 }}
             exit={{ y: "-100%" }}
             transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black"
           >
-            <div className="text-[clamp(4rem,10vw,8rem)] font-bold text-black tracking-tighter flex items-baseline gap-1" style={FONT_DISPLAY}>
+            <div className="text-[clamp(4rem,10vw,8rem)] font-bold text-white tracking-tighter flex items-baseline gap-1" style={FONT_DISPLAY}>
               {loadingProgress}<span style={{ color: TEAL_500, fontSize: "0.75em" }}>%</span>
             </div>
-            
-            <div className="relative w-64 md:w-96 h-1 bg-gray-100 rounded-full mt-4">
-              <div 
+
+            <div className="relative w-64 md:w-96 h-1 bg-gray-800 rounded-full mt-4">
+              <div
                 className="absolute top-0 left-0 h-full bg-teal-500 rounded-full transition-all duration-75"
                 style={{ width: `${loadingProgress}%` }}
               ></div>
-              <div 
+              <div
                 className="absolute top-1/2 transition-all duration-75"
-                style={{ 
-                  left: `${loadingProgress}%`, 
-                  transform: `translate(-50%, -50%) rotate(45deg)` 
+                style={{
+                  left: `${loadingProgress}%`,
+                  transform: `translate(-50%, -50%) rotate(45deg)`
                 }}
               >
                 <Rocket size={32} style={{ color: TEAL_500, fill: "rgba(20,184,166,0.1)" }} />
               </div>
             </div>
-            
+
           </motion.div>
         )}
       </AnimatePresence>
@@ -184,13 +191,30 @@ export default function Home() {
         background: "#ffffff url('/bg2.png') center/cover fixed no-repeat",
       }}>
         {/* ── HERO ── */}
-        <section className="relative w-full bg-transparent flex flex-col justify-center pt-24 pb-16 md:pt-32 md:pb-24">
+        <section className="relative w-full overflow-hidden bg-transparent flex flex-col justify-center pt-24 pb-16 md:pt-32 md:pb-24">
+          <video
+            ref={bgVideoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover z-0"
+          >
+            {/* The browser will try to load the tiny WebM first */}
+            <source src="/bg-video.webm" type="video/webm" />
+            
+            {/* If it's an older iPhone, it will fall back to the MP4 */}
+            <source src="/bg-video.mp4" type="video/mp4" />
+          </video>
+          {/* Dark overlay to ensure text readability */}
+          <div className="absolute inset-0 bg-black/50 z-0 pointer-events-none"></div>
+
           <InteractiveBackground />
           <div ref={heroRef} className="flex-none flex flex-col items-center text-center px-6 md:px-10 relative z-10 w-full max-w-[1200px] mx-auto">
             {/* H1 Heading */}
             <div className="overflow-hidden pb-1 w-full">
               <h1 className="hero-reveal m-0 leading-[1.1] md:leading-[1.05]">
-                <span className="block font-bold text-black tracking-tighter text-[clamp(2rem,6vw,4.5rem)]" style={FONT_DISPLAY}>
+                <span className="block font-bold text-white tracking-tighter text-[clamp(2rem,6vw,4.5rem)]" style={FONT_DISPLAY}>
                   We create <span style={{ color: TEAL_500 }}>solutions</span><br className="hidden md:block" />
                   <span className="md:hidden"> </span>for your business
                 </span>
@@ -200,7 +224,7 @@ export default function Home() {
             {/* Subheading */}
             <div className="mt-4 md:mt-6 flex flex-col items-center px-2 w-full max-w-3xl">
               <div className="overflow-hidden pb-2">
-                <p className="hero-reveal m-0 text-gray-700 font-medium leading-relaxed text-[clamp(0.95rem,1.5vw,1.15rem)]" style={FONT_BODY}>
+                <p className="hero-reveal m-0 text-gray-200 font-medium leading-relaxed text-[clamp(0.95rem,1.5vw,1.15rem)]" style={FONT_BODY}>
                   From concept to launch, Growtez crafts web apps, mobile products, and AI systems that actually move the needle.
                 </p>
               </div>
