@@ -61,7 +61,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-let isInitialLoad = true;
+let isInitialLoad = false;
 
 export default function Home() {
   const [loadingProgress, setLoadingProgress] = useState(isInitialLoad ? 0 : 100);
@@ -82,18 +82,34 @@ export default function Home() {
   useEffect(() => {
     if (!isInitialLoad) return;
 
-    let progress = 0;
+    let ticks = 0;
     const interval = setInterval(() => {
-      progress += Math.floor(Math.random() * 8) + 2;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        setTimeout(() => {
-          setIsLoading(false);
-          isInitialLoad = false;
-        }, 400);
-      }
-      setLoadingProgress(progress);
+      ticks++;
+      setLoadingProgress((prev) => {
+        let next = prev;
+        
+        // The video is considered ready if it has enough data to play, OR if 5 seconds have passed (fallback)
+        const isReady = (bgVideoRef.current && bgVideoRef.current.readyState >= 3) || ticks > 125;
+        
+        if (isReady) {
+          next += 15; // Race to 100 once ready
+        } else {
+          // Keep incrementing, but stall at 90% if the video isn't ready yet
+          if (next < 90) {
+            next += Math.floor(Math.random() * 8) + 2;
+          }
+        }
+
+        if (next >= 100) {
+          next = 100;
+          clearInterval(interval);
+          setTimeout(() => {
+            setIsLoading(false);
+            isInitialLoad = false;
+          }, 400);
+        }
+        return next;
+      });
     }, 40);
     return () => clearInterval(interval);
   }, []);
@@ -156,37 +172,13 @@ export default function Home() {
 
   return (
     <>
+      {/* Preloader disabled in favor of native video posters
       <AnimatePresence>
         {isLoading && (
-          <motion.div
-            initial={{ y: 0 }}
-            exit={{ y: "-100%" }}
-            transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black"
-          >
-            <div className="text-[clamp(4rem,10vw,8rem)] font-bold text-white tracking-tighter flex items-baseline gap-1" style={FONT_DISPLAY}>
-              {loadingProgress}<span style={{ color: TEAL_500, fontSize: "0.75em" }}>%</span>
-            </div>
-
-            <div className="relative w-64 md:w-96 h-1 bg-gray-800 rounded-full mt-4">
-              <div
-                className="absolute top-0 left-0 h-full bg-teal-500 rounded-full transition-all duration-75"
-                style={{ width: `${loadingProgress}%` }}
-              ></div>
-              <div
-                className="absolute top-1/2 transition-all duration-75"
-                style={{
-                  left: `${loadingProgress}%`,
-                  transform: `translate(-50%, -50%) rotate(45deg)`
-                }}
-              >
-                <Rocket size={32} style={{ color: TEAL_500, fill: "rgba(20,184,166,0.1)" }} />
-              </div>
-            </div>
-
-          </motion.div>
+          <motion.div ... />
         )}
       </AnimatePresence>
+      */}
       <div className="w-full flex flex-col" style={{
         background: "#ffffff url('/bg2.png') center/cover fixed no-repeat",
       }}>
@@ -194,6 +186,7 @@ export default function Home() {
         <section className="relative w-full overflow-hidden bg-transparent flex flex-col justify-center pt-24 pb-16 md:pt-32 md:pb-24">
           <video
             ref={bgVideoRef}
+            poster="/abstract-lines.png"
             autoPlay
             loop
             muted
@@ -233,6 +226,7 @@ export default function Home() {
             {/* Video Container */}
             <div className="hero-reveal w-full max-w-5xl mx-auto mt-8 md:mt-12 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative bg-slate-100 shadow-2xl border border-black/5">
               <video
+                poster="/1.jpg"
                 src="/promo-portrait.mp4"
                 autoPlay
                 loop
@@ -241,6 +235,7 @@ export default function Home() {
                 className="w-full h-auto block md:hidden"
               />
               <video
+                poster="/1.jpg"
                 src="/promo-desktop.mp4"
                 autoPlay
                 loop
