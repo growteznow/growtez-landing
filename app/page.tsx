@@ -61,7 +61,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-let isInitialLoad = true;
+let isInitialLoad = false;
 
 export default function Home() {
   const [loadingProgress, setLoadingProgress] = useState(isInitialLoad ? 0 : 100);
@@ -71,22 +71,45 @@ export default function Home() {
   const servicesSectionRef = useRef<HTMLElement>(null);
   const servicesPanelRef = useRef<HTMLDivElement>(null);
   const servicesTrackRef = useRef<HTMLDivElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (bgVideoRef.current) {
+      bgVideoRef.current.playbackRate = 0.4;
+    }
+  }, []);
 
   useEffect(() => {
     if (!isInitialLoad) return;
 
-    let progress = 0;
+    let ticks = 0;
     const interval = setInterval(() => {
-      progress += Math.floor(Math.random() * 8) + 2;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        setTimeout(() => {
-          setIsLoading(false);
-          isInitialLoad = false;
-        }, 400);
-      }
-      setLoadingProgress(progress);
+      ticks++;
+      setLoadingProgress((prev) => {
+        let next = prev;
+        
+        // The video is considered ready if it has enough data to play, OR if 5 seconds have passed (fallback)
+        const isReady = (bgVideoRef.current && bgVideoRef.current.readyState >= 3) || ticks > 125;
+        
+        if (isReady) {
+          next += 15; // Race to 100 once ready
+        } else {
+          // Keep incrementing, but stall at 90% if the video isn't ready yet
+          if (next < 90) {
+            next += Math.floor(Math.random() * 8) + 2;
+          }
+        }
+
+        if (next >= 100) {
+          next = 100;
+          clearInterval(interval);
+          setTimeout(() => {
+            setIsLoading(false);
+            isInitialLoad = false;
+          }, 400);
+        }
+        return next;
+      });
     }, 40);
     return () => clearInterval(interval);
   }, []);
@@ -149,48 +172,42 @@ export default function Home() {
 
   return (
     <>
+      {/* Preloader disabled in favor of native video posters
       <AnimatePresence>
         {isLoading && (
-          <motion.div
-            initial={{ y: 0 }}
-            exit={{ y: "-100%" }}
-            transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
-          >
-            <div className="text-[clamp(4rem,10vw,8rem)] font-bold text-black tracking-tighter flex items-baseline gap-1" style={FONT_DISPLAY}>
-              {loadingProgress}<span style={{ color: TEAL_500, fontSize: "0.75em" }}>%</span>
-            </div>
-            
-            <div className="relative w-64 md:w-96 h-1 bg-gray-100 rounded-full mt-4">
-              <div 
-                className="absolute top-0 left-0 h-full bg-teal-500 rounded-full transition-all duration-75"
-                style={{ width: `${loadingProgress}%` }}
-              ></div>
-              <div 
-                className="absolute top-1/2 transition-all duration-75"
-                style={{ 
-                  left: `${loadingProgress}%`, 
-                  transform: `translate(-50%, -50%) rotate(45deg)` 
-                }}
-              >
-                <Rocket size={32} style={{ color: TEAL_500, fill: "rgba(20,184,166,0.1)" }} />
-              </div>
-            </div>
-            
-          </motion.div>
+          <motion.div ... />
         )}
       </AnimatePresence>
+      */}
       <div className="w-full flex flex-col" style={{
         background: "#ffffff url('/bg2.png') center/cover fixed no-repeat",
       }}>
         {/* ── HERO ── */}
-        <section className="relative w-full bg-transparent flex flex-col justify-center pt-24 pb-16 md:pt-32 md:pb-24">
+        <section className="relative w-full overflow-hidden bg-transparent flex flex-col justify-center pt-24 pb-16 md:pt-32 md:pb-24">
+          <video
+            ref={bgVideoRef}
+            poster="/abstract-lines.png"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover z-0"
+          >
+            {/* The browser will try to load the tiny WebM first */}
+            <source src="/bg-video.webm" type="video/webm" />
+            
+            {/* If it's an older iPhone, it will fall back to the MP4 */}
+            <source src="/bg-video.mp4" type="video/mp4" />
+          </video>
+          {/* Dark overlay to ensure text readability */}
+          <div className="absolute inset-0 bg-black/50 z-0 pointer-events-none"></div>
+
           <InteractiveBackground />
           <div ref={heroRef} className="flex-none flex flex-col items-center text-center px-6 md:px-10 relative z-10 w-full max-w-[1200px] mx-auto">
             {/* H1 Heading */}
             <div className="overflow-hidden pb-1 w-full">
               <h1 className="hero-reveal m-0 leading-[1.1] md:leading-[1.05]">
-                <span className="block font-bold text-black tracking-tighter text-[clamp(2rem,6vw,4.5rem)]" style={FONT_DISPLAY}>
+                <span className="block font-bold text-white tracking-tighter text-[clamp(2rem,6vw,4.5rem)]" style={FONT_DISPLAY}>
                   We create <span style={{ color: TEAL_500 }}>solutions</span><br className="hidden md:block" />
                   <span className="md:hidden"> </span>for your business
                 </span>
@@ -200,7 +217,7 @@ export default function Home() {
             {/* Subheading */}
             <div className="mt-4 md:mt-6 flex flex-col items-center px-2 w-full max-w-3xl">
               <div className="overflow-hidden pb-2">
-                <p className="hero-reveal m-0 text-gray-700 font-medium leading-relaxed text-[clamp(0.95rem,1.5vw,1.15rem)]" style={FONT_BODY}>
+                <p className="hero-reveal m-0 text-gray-200 font-medium leading-relaxed text-[clamp(0.95rem,1.5vw,1.15rem)]" style={FONT_BODY}>
                   From concept to launch, Growtez crafts web apps, mobile products, and AI systems that actually move the needle.
                 </p>
               </div>
@@ -209,6 +226,7 @@ export default function Home() {
             {/* Video Container */}
             <div className="hero-reveal w-full max-w-5xl mx-auto mt-8 md:mt-12 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative bg-slate-100 shadow-2xl border border-black/5">
               <video
+                poster="/1.jpg"
                 src="/promo-portrait.mp4"
                 autoPlay
                 loop
@@ -217,6 +235,7 @@ export default function Home() {
                 className="w-full h-auto block md:hidden"
               />
               <video
+                poster="/1.jpg"
                 src="/promo-desktop.mp4"
                 autoPlay
                 loop
