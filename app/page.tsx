@@ -8,7 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { FONT_DISPLAY, FONT_BODY, TEAL_400, TEAL_500 } from "@/lib/constants";
-import { portfolio, testimonials } from "@/lib/data";
+import { portfolio, communityTestimonials } from "@/lib/data";
 import InteractiveBackground from "@/components/InteractiveBackground";
 import MouseGlow from "@/components/MouseGlow";
 
@@ -35,9 +35,9 @@ const serviceCards = [
   },
   {
     image: "/service_mobile.png",
-    title: "AI-enhanced UX/UI design",
-    alt: "AI-enhanced UX/UI design",
-    desc: "Interfaces that adapt, predict, and respond intelligently.",
+    title: "UI/UX Design",
+    alt: "UI/UX Design",
+    desc: "User-centered design solutions that create engaging and intuitive digital experiences.",
   },
   {
     image: "/service_brand.png",
@@ -66,12 +66,12 @@ let isInitialLoad = false;
 export default function Home() {
   const [loadingProgress, setLoadingProgress] = useState(isInitialLoad ? 0 : 100);
   const [isLoading, setIsLoading] = useState(isInitialLoad);
+  const [activeServices, setActiveServices] = useState<number[]>([]);
 
   const heroRef = useRef<HTMLDivElement>(null);
-  const servicesSectionRef = useRef<HTMLElement>(null);
-  const servicesPanelRef = useRef<HTMLDivElement>(null);
-  const servicesTrackRef = useRef<HTMLDivElement>(null);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
+  const strategySectionRef = useRef<HTMLElement>(null);
+  const strategyTrackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (bgVideoRef.current) {
@@ -134,29 +134,37 @@ export default function Home() {
   }, [isLoading]);
 
   useEffect(() => {
-    const panel = servicesPanelRef.current;
-    const track = servicesTrackRef.current;
-    if (!panel || !track) return;
+    const section = strategySectionRef.current;
+    const track = strategyTrackRef.current;
+    if (!section || !track) return;
 
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
-      mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
+      mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
+        // Find the last card in the track to accurately calculate its position
+        const cards = track.querySelectorAll('.strategy-card');
+        const lastCard = cards[cards.length - 1] as HTMLElement;
+
         const getScrollDistance = () => {
-          const overflow = track.scrollWidth - window.innerWidth;
-          return Math.max(overflow, window.innerHeight * 1.25);
+          if (!lastCard) return window.innerHeight * 1.5;
+          // The distance we need to move the track so the last card aligns with the left edge
+          // We subtract 64px (4rem) to give it a nice breathing room from the left edge
+          const maxScroll = lastCard.offsetLeft - 64; 
+          return Math.max(maxScroll, window.innerHeight * 1.5);
         };
 
         gsap.to(track, {
           x: () => {
-            const overflow = track.scrollWidth - window.innerWidth;
-            return overflow > 0 ? -overflow : 0;
+            if (!lastCard) return 0;
+            const maxScroll = lastCard.offsetLeft - 64;
+            return -maxScroll;
           },
           ease: "none",
           scrollTrigger: {
-            trigger: panel,
+            trigger: section,
             pin: true,
-            start: "center center",
+            start: "top top",
             end: () => `+=${getScrollDistance()}`,
             scrub: 1,
             invalidateOnRefresh: true,
@@ -165,10 +173,32 @@ export default function Home() {
       });
 
       return () => mm.revert();
-    }, panel);
+    }, section);
 
     return () => ctx.revert();
   }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
+    const ctx = gsap.context(() => {
+      const quotes = document.querySelectorAll(".community-quote");
+      quotes.forEach((q) => {
+        gsap.fromTo(q,
+          { y: 80, opacity: 0 },
+          {
+            y: 0, opacity: 1, duration: 1.2, ease: "power3.out",
+            scrollTrigger: {
+              trigger: q,
+              start: "top 85%",
+            }
+          }
+        );
+      });
+    });
+    return () => ctx.revert();
+  }, [isLoading]);
+
+
 
   return (
     <>
@@ -183,7 +213,7 @@ export default function Home() {
         background: "#ffffff url('/bg2.png') center/cover fixed no-repeat",
       }}>
         {/* ── HERO ── */}
-        <section className="relative w-full overflow-hidden bg-transparent flex flex-col justify-center pt-24 pb-16 md:pt-32 md:pb-24">
+        <section className="relative w-full overflow-hidden bg-black flex flex-col justify-center pt-24 pb-16 md:pt-32 md:pb-24">
           <video
             ref={bgVideoRef}
             poster="/abstract-lines.png"
@@ -224,7 +254,7 @@ export default function Home() {
             </div>
 
             {/* Video Container */}
-            <div className="hero-reveal w-full max-w-5xl mx-auto mt-8 md:mt-12 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative bg-slate-100 shadow-2xl border border-black/5">
+            <div className="hero-reveal w-full max-w-5xl mx-auto mt-8 md:mt-12 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative bg-black shadow-2xl border border-black/5 aspect-[9/16] md:aspect-video">
               <video
                 poster="/1.jpg"
                 src="/promo-portrait.mp4"
@@ -248,47 +278,216 @@ export default function Home() {
         </section>
 
         {/* ── SERVICES ── */}
-        <section ref={servicesSectionRef} className="relative w-full overflow-visible bg-white">
-          <div className="max-w-7xl mx-auto w-full px-6 pt-24 pb-14 md:px-12 md:pt-32 md:pb-20">
-            <div className="max-w-2xl">
-              <h2 className="text-[clamp(2rem,3.5vw,3rem)] font-bold text-black tracking-tight leading-[1.05]" style={FONT_DISPLAY}>
-                Our <span style={{ color: TEAL_500 }}>services</span>
-              </h2>
-              <p className="mt-3 text-base md:text-lg text-slate-500 font-medium leading-relaxed" style={FONT_BODY}>
-                We build websites, apps, AI solutions, and digital experiences that drive business growth.
-              </p>
+        <section className="relative w-full overflow-visible bg-white pt-12 md:pt-16 pb-16 md:pb-24">
+          <div className="max-w-[1400px] mx-auto w-full px-6 md:px-12">
+            <div className="w-full flex justify-between items-end pb-4">
+              <span className="text-xl md:text-2xl text-black font-medium tracking-tight" style={FONT_BODY}>Our Services</span>
             </div>
-          </div>
-
-          <div ref={servicesPanelRef} className="relative z-30 w-full bg-white pb-16 md:pb-20 overflow-hidden">
-            <div className="w-full pb-8">
-              <div ref={servicesTrackRef} className="flex flex-col md:flex-row md:w-max gap-12 md:gap-10 px-6 md:pl-[max(3rem,calc((100vw-80rem)/2+3rem))] md:pr-12">
-                {serviceCards.map((service, i) => (
-                  <motion.article
-                    key={`${service.title}-${i}`}
-                    className="service-card w-full max-w-[480px] mx-auto md:mx-0 shrink-0 md:w-[clamp(280px,28vw,380px)]"
-                    initial={{ opacity: 0, y: 34 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.25 }}
-                    transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.05 }}
-                  >
-                    <div className="overflow-hidden rounded-[2rem] bg-slate-100 relative">
-                      <img
-                        src={service.image}
-                        alt={service.alt}
-                        className="w-full h-auto hover:scale-105 transition-transform duration-700 ease-out block"
-                      />
-                    </div>
-                    <h3 className="mt-6 text-2xl md:text-[1.65rem] font-bold text-black tracking-tight leading-tight" style={FONT_DISPLAY}>
+            
+            <div className="w-full border-t border-black">
+              {serviceCards.map((service: any, i) => {
+                const isActive = activeServices.includes(i);
+                return (
+                <div
+                  key={`${service.title}-${i}`}
+                  className="w-full border-b border-black cursor-pointer transition-colors duration-300 hover:bg-slate-50/50"
+                  onMouseEnter={() => {
+                    if (!activeServices.includes(i)) {
+                      setActiveServices(prev => [...prev, i]);
+                    }
+                  }}
+                >
+                  <div className="relative w-full px-4 md:px-8 min-h-[5rem] md:min-h-[10rem] flex items-center justify-center md:justify-start">
+                    
+                    {/* Mobile title */}
+                    <h3 className="block md:hidden text-[2rem] sm:text-[2.5rem] text-black text-center w-full" style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif", fontWeight: 300, letterSpacing: "-0.03em" }}>
                       {service.title}
                     </h3>
-                    <p className="mt-2 text-base md:text-[1.05rem] text-slate-500 max-w-md leading-relaxed" style={FONT_BODY}>
-                      {service.desc}
+
+                    {/* Desktop title */}
+                    <h3 
+                      className={`hidden md:block text-[3rem] lg:text-[4rem] text-black absolute top-1/2 -translate-y-1/2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] leading-none whitespace-nowrap z-10 ${isActive ? 'left-8 -translate-x-0' : 'left-1/2 -translate-x-1/2'}`} 
+                      style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif", fontWeight: 300, letterSpacing: "-0.03em" }}
+                    >
+                      {service.title}
+                    </h3>
+                    
+                    {/* Hover content (Right side) */}
+                    <div className={`hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 items-center gap-6 md:gap-8 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] z-20 ${isActive ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-8 pointer-events-none'}`}>
+                      <div className="text-right max-w-xs xl:max-w-sm flex flex-col items-end gap-3">
+                        <p className="text-sm lg:text-base text-slate-600 leading-relaxed" style={FONT_DISPLAY}>
+                          {service.desc}
+                        </p>
+                        {service.features && (
+                          <ul className="flex flex-col items-end gap-1 mt-1">
+                            {service.features.map((feature: string, idx: number) => (
+                              <li key={idx} className="text-xs lg:text-sm text-slate-500 flex items-center gap-2" style={FONT_BODY}>
+                                {feature} <span className="w-1 h-1 rounded-full bg-teal-500"></span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                      <div className={`w-40 lg:w-48 shrink-0 rounded-2xl overflow-hidden shadow-xl bg-slate-100 border border-black/5 transform transition-transform duration-700 ${isActive ? 'scale-105' : 'scale-100'}`}>
+                        <img src={service.image} alt={service.alt} className="w-full h-auto object-cover aspect-[4/3]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )})}
+            </div>
+          </div>
+        </section>
+
+        {/* ── STRATEGY ── */}
+        <div className="w-full block">
+          <section ref={strategySectionRef} className="relative w-full bg-black text-white pt-24 pb-32 md:pt-0 md:pb-0 md:h-screen z-10 overflow-hidden shadow-2xl flex flex-col md:flex-row">
+          <div className="max-w-[1400px] mx-auto w-full px-6 md:px-12 flex flex-col md:flex-row h-full items-center md:items-start pt-12 md:pt-20 lg:pt-24 relative">
+            
+            {/* Left Column (Sticky context on mobile, fixed in place on desktop since section is pinned) */}
+            <div className="w-full lg:w-5/12 shrink-0 relative z-20">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em]" style={FONT_BODY}>
+                OUR STRATEGY
+              </div>
+              <h2 
+                className="text-[2.5rem] md:text-[3.5rem] lg:text-[4rem] leading-[1.05] font-normal tracking-tight mt-6"
+                style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
+              >
+                3 steps we take <br className="hidden lg:block"/> for our projects.
+              </h2>
+              <p className="mt-8 text-lg md:text-xl text-gray-400 max-w-md leading-relaxed" style={FONT_BODY}>
+                Our proven methodology ensures consistent quality and exceptional results for every client we serve.
+              </p>
+            </div>
+
+            {/* Right Column (Horizontal Scroll Window for Desktop) */}
+            <div className="hidden lg:block w-7/12 h-full absolute right-0 top-0 z-10 overflow-hidden mask-edge-left">
+              <div ref={strategyTrackRef} className="flex h-full items-center pl-16 pr-16 md:pr-24 w-max gap-20">
+                {[
+                  {
+                    num: "01",
+                    title: "Discover & Plan",
+                    desc: "We understand your vision, analyze requirements, and craft a clear roadmap.",
+                  },
+                  {
+                    num: "02",
+                    title: "Design & Build",
+                    desc: "We create intuitive designs and develop robust, scalable solutions tailored to your needs.",
+                  },
+                  {
+                    num: "03",
+                    title: "Launch & Grow",
+                    desc: "We deploy, optimize, and provide continuous support to ensure long-term success.",
+                  },
+                ].map((step, i) => (
+                  <div key={i} className="strategy-card group flex flex-col items-start w-[450px] shrink-0 border-t border-white/20 pt-8 transition-colors duration-500 hover:border-teal-500">
+                    <span 
+                      className="text-[5rem] md:text-[7rem] lg:text-[9rem] leading-none font-light text-white/10 transition-colors duration-500 group-hover:text-teal-500" 
+                      style={FONT_DISPLAY}
+                    >
+                      {step.num}
+                    </span>
+                    <h3 
+                      className="text-[2.2rem] md:text-[3rem] text-white mt-6 font-normal tracking-tight"
+                      style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
+                    >
+                      {step.title}
+                    </h3>
+                    <p className="text-gray-400 text-lg md:text-xl mt-4 max-w-lg leading-relaxed" style={FONT_BODY}>
+                      {step.desc}
                     </p>
-                  </motion.article>
+                  </div>
                 ))}
               </div>
             </div>
+
+            {/* Mobile Fallback (Vertical List) */}
+            <div className="w-full lg:hidden flex flex-col gap-16 mt-12 pb-12 relative z-10">
+              {[
+                  {
+                    num: "01",
+                    title: "Discover & Plan",
+                    desc: "We understand your vision, analyze requirements, and craft a clear roadmap.",
+                  },
+                  {
+                    num: "02",
+                    title: "Design & Build",
+                    desc: "We create intuitive designs and develop robust, scalable solutions tailored to your needs.",
+                  },
+                  {
+                    num: "03",
+                    title: "Launch & Grow",
+                    desc: "We deploy, optimize, and provide continuous support to ensure long-term success.",
+                  },
+                ].map((step, i) => (
+                  <div key={i} className="group flex flex-col items-start w-full border-t border-white/20 pt-8 transition-colors duration-500 hover:border-teal-500">
+                    <span 
+                      className="text-[5rem] md:text-[7rem] lg:text-[9rem] leading-none font-light text-white/10 transition-colors duration-500 group-hover:text-teal-500" 
+                      style={FONT_DISPLAY}
+                    >
+                      {step.num}
+                    </span>
+                    <h3 
+                      className="text-[2.2rem] md:text-[3rem] text-white mt-6 font-normal tracking-tight"
+                      style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
+                    >
+                      {step.title}
+                    </h3>
+                    <p className="text-gray-400 text-lg md:text-xl mt-4 max-w-lg leading-relaxed" style={FONT_BODY}>
+                      {step.desc}
+                    </p>
+                  </div>
+                ))}
+            </div>
+
+          </div>
+        </section>
+        </div>
+
+        {/* ── OUR COMMUNITY ── */}
+        <section className="relative w-full bg-white text-black py-24 md:py-40 overflow-hidden z-10 shadow-2xl rounded-b-[3rem] md:rounded-b-[4rem]">
+          <div className="max-w-[1400px] mx-auto w-full px-6 md:px-12">
+            <div className="flex flex-col md:flex-row gap-12 md:gap-24 mb-20 md:mb-32">
+              <div className="w-full md:w-5/12">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-600 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em]" style={FONT_BODY}>
+                  OUR COMMUNITY
+                </div>
+                <h2 
+                  className="text-[3rem] md:text-[4rem] lg:text-[5rem] leading-[1.05] font-normal tracking-tight mt-6"
+                  style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
+                >
+                  See what customers are saying about us.
+                </h2>
+              </div>
+              <div className="w-full md:w-5/12 md:ml-auto flex items-end pb-4">
+                <p className="text-xl text-gray-500 leading-relaxed" style={FONT_BODY}>
+                  Join thousands of satisfied clients who have transformed their businesses with our solutions.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-24 md:gap-32">
+              {communityTestimonials.map((t, i) => (
+                <div key={i} className="community-quote flex flex-col gap-8 md:gap-12 w-full max-w-6xl ml-auto border-t border-black/10 pt-12 md:pt-16">
+                  <h3 
+                    className="text-[2rem] md:text-[2.8rem] lg:text-[3.2rem] leading-[1.2] font-light text-black tracking-tight"
+                    style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
+                  >
+                    &ldquo;{t.quote}&rdquo;
+                  </h3>
+                  <div className="flex items-center gap-5">
+                    <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center text-white font-bold text-xl" style={FONT_BODY}>
+                      {t.name[0]}
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-black m-0" style={FONT_BODY}>{t.name}</p>
+                      <p className="text-gray-500 m-0" style={FONT_BODY}>{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
           </div>
         </section>
 
@@ -357,75 +556,22 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── TESTIMONIALS ── */}
-        <section className="relative min-h-screen w-full bg-transparent flex items-center py-20 px-6 md:py-[100px] md:px-[60px]">
-          <div style={{ maxWidth: 1280, margin: "0 auto", width: "100%" }}>
-            <div style={{ marginBottom: 44, textAlign: "center" }}>
-              <SectionLabel>Client Stories</SectionLabel>
-              <h2 style={{
-                margin: 0, color: "#000000",
-                fontSize: "clamp(2.2rem, 3.8vw, 3.5rem)",
-                fontWeight: 700, letterSpacing: "-0.03em", ...FONT_DISPLAY,
-              }}>
-                Don&apos;t take our <span style={{ color: TEAL_500 }}>word</span> for it.
+        {/* ── CTA FOOTER ── */}
+        <section className="relative w-full bg-transparent flex items-center py-20 px-6 md:py-32 md:px-12">
+          <div className="max-w-[1400px] mx-auto w-full">
+            <div className="border-t border-black/10 pt-16 md:pt-24 flex justify-between items-center flex-wrap gap-8">
+              <h2 className="text-[2.5rem] md:text-[4rem] tracking-tight leading-none text-black" style={FONT_DISPLAY}>
+                Ready to transform <br/> <span className="text-teal-500">your business?</span>
               </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {testimonials.map((t, i) => (
-                <MouseGlow key={i} className="rounded-[20px]" color="rgba(20,184,166,0.06)">
-                  <div style={{
-                    background: "#ffffff",
-                    border: "1px solid rgba(0,0,0,0.07)",
-                    borderRadius: 20, padding: "28px",
-                    display: "flex", flexDirection: "column", gap: 14,
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-                    transition: "box-shadow 0.25s, transform 0.2s",
-                    height: "100%",
-                  }}
-                    onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 8px 28px -8px rgba(0,0,0,0.1)"; e.currentTarget.style.transform = "translateY(-3px)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.04)"; e.currentTarget.style.transform = "translateY(0)"; }}>
-                    <div style={{ display: "flex", gap: 3 }}>
-                      {Array(t.stars).fill(0).map((_, j) => (
-                        <Star key={j} size={13} style={{ fill: TEAL_400, color: TEAL_400 }} />
-                      ))}
-                    </div>
-                    <p style={{ flex: 1, fontSize: "0.875rem", lineHeight: 1.8, color: "#475569", margin: 0 }}>
-                      &ldquo;{t.quote}&rdquo;
-                    </p>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div style={{
-                        width: 36, height: 36, borderRadius: "50%",
-                        background: "rgba(20,184,166,0.12)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        color: TEAL_500, fontSize: 14, fontWeight: 700,
-                      }}>{t.name[0]}</div>
-                      <div>
-                        <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 700, color: "#000000" }}>{t.name}</p>
-                        <p style={{ margin: 0, fontSize: "0.75rem", color: "#94a3b8" }}>{t.role}</p>
-                      </div>
-                    </div>
-                  </div>
-                </MouseGlow>
-              ))}
-            </div>
-
-            <div style={{ marginTop: 40, textAlign: "center", position: "relative" }}>
-              <Link href="/contact" style={{
-                display: "inline-flex", alignItems: "center", gap: 10,
-                padding: "16px 44px", borderRadius: 9999,
-                background: TEAL_500, color: "#ffffff",
-                fontSize: "0.95rem", fontWeight: 700, textDecoration: "none",
-                transition: "background 0.2s", ...FONT_BODY,
-                position: "relative", zIndex: 11
-              }}
-                onMouseEnter={e => (e.currentTarget.style.background = TEAL_400)}
-                onMouseLeave={e => (e.currentTarget.style.background = TEAL_500)}>
-                Start Your Project <ArrowRight size={16} />
+              <Link href="/contact" className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 bg-black text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl" style={FONT_BODY}>
+                <span className="relative z-10 text-lg font-medium">Start Your Project</span>
+                <ArrowRight className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                <div className="absolute inset-0 bg-teal-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
               </Link>
             </div>
           </div>
         </section>
+
       </div>
     </>
   );
