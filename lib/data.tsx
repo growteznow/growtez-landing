@@ -31,10 +31,22 @@ export const portfolio = [
   { src: "/portfolio_brand.png",  title: "Arkon Studio",  category: "Brand Identity System",    year: "2024" },
 ];
 
-export const testimonials = [
-  { quote: "Growtez didn't just build our product—they transformed our entire digital DNA. The result is a platform our users genuinely love.",             name: "Ayesha Rahman", role: "CEO, NovaDash",       stars: 5 },
-  { quote: "Working with them felt like having a world-class product team embedded in our company. Communication was flawless, delivery was early.",        name: "Marcus Osei",   role: "Founder, Kova Finance", stars: 5 },
-  { quote: "Our new brand identity elevated every customer touchpoint. We saw a 40% jump in brand recognition in the first quarter alone.",                 name: "Priya Nair",    role: "CMO, Arkon Studio",    stars: 5 },
+export const communityTestimonials = [
+  { 
+    quote: "growtez helped us build a professional website that truly represents our brand. Their social media management has boosted our online presence and helped us connect with more clients.", 
+    name: "Sukrit Infrastructure", 
+    role: "Construction Company, Assam" 
+  },
+  { 
+    quote: "The team at growtez built us a clean, functional, and easy-to-navigate website. Their work has made our platform more accessible for students, and we’re extremely happy with the results.", 
+    name: "NFOExams", 
+    role: "Education Platform, Rajasthan" 
+  },
+  { 
+    quote: "growtez designed and developed our website exactly the way we wanted. The smooth experience and timely delivery showed their professionalism and commitment.", 
+    name: "Nucleon Coaching Institute", 
+    role: "Education Platform, Kolkata" 
+  },
 ];
 
 export const pricingPlans = [

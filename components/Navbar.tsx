@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { Menu, X } from "lucide-react";
 import { TEAL_500 } from "@/lib/constants";
@@ -105,7 +106,7 @@ export default function Navbar() {
         </Link>
         
         {/* Desktop links */}
-        <ul style={{ gap: 32, listStyle: "none", margin: 0, padding: 0 }} className="hidden md:flex">
+        <ul style={{ gap: 32, listStyle: "none", margin: 0, padding: 0 }} className="hidden md:flex items-center">
           {links.map(l => (
             <li key={l.href}>
               <Link
@@ -126,26 +127,83 @@ export default function Navbar() {
           {/* More dropdown */}
           <li style={{ position: "relative" }} onMouseEnter={() => setMoreOpen(true)} onMouseLeave={() => setMoreOpen(false)}>
             <button
-              style={{ background: "none", border: "none", fontSize: "0.9rem", fontWeight: 600, color: linkColor, display: "flex", alignItems: "center", gap: 4, cursor: "pointer", transition: "color 0.2s", padding: 0 }}
+              style={{ 
+                background: moreOpen ? "rgba(255,255,255,0.15)" : "transparent", 
+                borderRadius: 999,
+                border: "none", 
+                fontSize: "0.85rem", 
+                fontWeight: 600, 
+                color: linkColor, 
+                display: "flex", 
+                alignItems: "center", 
+                gap: 6, 
+                cursor: "pointer", 
+                transition: "all 0.2s", 
+                padding: "8px 16px",
+                marginLeft: "-16px"
+              }}
               onMouseEnter={e => (e.currentTarget.style.color = TEAL_500)}
               onMouseLeave={e => (e.currentTarget.style.color = linkColor)}>
-              More
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              MORE
+              <motion.svg 
+                animate={{ rotate: moreOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+              >
+                <path d="m6 9 6 6 6-6"/>
+              </motion.svg>
             </button>
+            <AnimatePresence>
             {moreOpen && (
-              <div style={{ position: "absolute", top: "100%", right: 0, paddingTop: 14 }}>
-                <div style={{ background: dropdownBg, borderRadius: 12, padding: "8px 0", border: `1px solid ${dropdownBorder}`, boxShadow: "0 12px 40px -8px rgba(0,0,0,0.3)", minWidth: 160 }}>
-                  {moreLinks.map(l => (
-                    <Link key={l.href} href={l.href}
-                      style={{ display: "block", padding: "10px 20px", fontSize: "0.875rem", fontWeight: 500, color: dropdownLinkColor, textDecoration: "none", transition: "color 0.15s" }}
-                      onMouseEnter={e => (e.currentTarget.style.color = TEAL_500)}
-                      onMouseLeave={e => (e.currentTarget.style.color = dropdownLinkColor)}>
-                      {l.label}
-                    </Link>
-                  ))}
-                </div>
+              <div style={{ position: "absolute", top: "100%", right: 0, paddingTop: 8 }}>
+                <motion.div 
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  variants={{
+                    hidden: { opacity: 0, height: 0, transition: { staggerChildren: 0.05, staggerDirection: -1 } },
+                    visible: { opacity: 1, height: "auto", transition: { duration: 0.6, ease: [0.76, 0, 0.24, 1], staggerChildren: 0.08, delayChildren: 0.15 } }
+                  }}
+                  style={{ 
+                    background: "#ffffff", 
+                    borderRadius: 12, 
+                    boxShadow: "0 12px 40px -8px rgba(0,0,0,0.3)", 
+                    minWidth: 130,
+                    overflow: "hidden"
+                  }}
+                >
+                  <div style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: 2 }}>
+                    {moreLinks.map(l => (
+                      <motion.div
+                        key={l.href}
+                        variants={{
+                          hidden: { opacity: 0, y: 15 },
+                          visible: { opacity: 1, y: 0 }
+                        }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                      >
+                        <Link href={l.href}
+                          style={{ 
+                            display: "block", 
+                            padding: "6px 16px", 
+                            fontSize: "0.875rem", 
+                            fontWeight: 600, 
+                            color: "#000000", 
+                            textDecoration: "none", 
+                            transition: "color 0.15s" 
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.color = TEAL_500)}
+                          onMouseLeave={e => (e.currentTarget.style.color = "#000000")}
+                        >
+                          {l.label}
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
               </div>
             )}
+            </AnimatePresence>
           </li>
         </ul>
         
