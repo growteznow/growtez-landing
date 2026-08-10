@@ -41,6 +41,11 @@ export default function RevealText({
         start: "top 88%",
         toggleActions: "play none none none",
       },
+      onComplete: () => {
+        if (containerRef.current) {
+          containerRef.current.style.overflow = "visible";
+        }
+      }
     });
 
     return () => {
@@ -54,9 +59,13 @@ export default function RevealText({
     <div
       ref={containerRef}
       className={`overflow-hidden ${displayClass} align-bottom`}
-      style={{ paddingBottom: '0.2em', marginBottom: '-0.2em' }}
+      style={{ marginBottom: '-0.4em', marginTop: '-0.2em' }}
     >
-      <div ref={textRef} className={`${displayClass} ${className}`} style={style}>
+      <div 
+        ref={textRef} 
+        className={`${displayClass} ${className}`} 
+        style={{ ...style, paddingBottom: '0.4em', paddingTop: '0.2em' }}
+      >
         {children}
       </div>
     </div>

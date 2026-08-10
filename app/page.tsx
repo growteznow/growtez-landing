@@ -11,6 +11,8 @@ import { FONT_DISPLAY, FONT_BODY, TEAL_400, TEAL_500 } from "@/lib/constants";
 import { portfolio, communityTestimonials } from "@/lib/data";
 import InteractiveBackground from "@/components/InteractiveBackground";
 import MouseGlow from "@/components/MouseGlow";
+import { PortfolioCard } from "@/components/UI";
+import MagneticButton from "@/components/MagneticButton";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -66,12 +68,14 @@ let isInitialLoad = false;
 export default function Home() {
   const [loadingProgress, setLoadingProgress] = useState(isInitialLoad ? 0 : 100);
   const [isLoading, setIsLoading] = useState(isInitialLoad);
-  const [activeServices, setActiveServices] = useState<number[]>([]);
+  const [activeService, setActiveService] = useState<number | null>(null);
+  const [visitedServices, setVisitedServices] = useState<number[]>([]);
+  const servicesSectionRef = useRef<HTMLDivElement>(null);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
   const strategySectionRef = useRef<HTMLElement>(null);
-  const strategyTrackRef = useRef<HTMLDivElement>(null);
+  const strategyLeftRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (bgVideoRef.current) {
@@ -133,42 +137,55 @@ export default function Home() {
     );
   }, [isLoading]);
 
+  // Auto-open service cards on mobile when they scroll into view
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const isMobile = window.matchMedia('(max-width: 767px)');
+    if (!isMobile.matches) return;
+
+    const cards = document.querySelectorAll('[data-service-index]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const idx = Number((entry.target as HTMLElement).dataset.serviceIndex);
+          // Small stagger so cards don't all pop open at once
+          setTimeout(() => {
+            setVisitedServices(prev => prev.includes(idx) ? prev : [...prev, idx]);
+          }, idx * 150);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    cards.forEach(card => observer.observe(card));
+    return () => observer.disconnect();
+  }, [isLoading]);
+
   useEffect(() => {
     const section = strategySectionRef.current;
-    const track = strategyTrackRef.current;
-    if (!section || !track) return;
+    const leftCol = strategyLeftRef.current;
+    if (!section || !leftCol) return;
+
+    const stepColors = ["#1e1b4b", "#3b1c32", "#0f3d3e"];
 
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
       mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
-        // Find the last card in the track to accurately calculate its position
-        const cards = track.querySelectorAll('.strategy-card');
-        const lastCard = cards[cards.length - 1] as HTMLElement;
+        // Background color transitions for each step (desktop only)
+        const steps = section.querySelectorAll(".strategy-step");
 
-        const getScrollDistance = () => {
-          if (!lastCard) return window.innerHeight * 1.5;
-          // The distance we need to move the track so the last card aligns with the left edge
-          // We subtract 64px (4rem) to give it a nice breathing room from the left edge
-          const maxScroll = lastCard.offsetLeft - 64; 
-          return Math.max(maxScroll, window.innerHeight * 1.5);
-        };
-
-        gsap.to(track, {
-          x: () => {
-            if (!lastCard) return 0;
-            const maxScroll = lastCard.offsetLeft - 64;
-            return -maxScroll;
-          },
-          ease: "none",
-          scrollTrigger: {
-            trigger: section,
-            pin: true,
-            start: "top top",
-            end: () => `+=${getScrollDistance()}`,
-            scrub: 1,
-            invalidateOnRefresh: true,
-          },
+        steps.forEach((step, i) => {
+          ScrollTrigger.create({
+            trigger: step,
+            start: "top 10%",
+            end: "bottom 10%",
+            onEnter: () => gsap.to(section, { backgroundColor: stepColors[i], duration: 0.8, overwrite: "auto" }),
+            onEnterBack: () => gsap.to(section, { backgroundColor: stepColors[i], duration: 0.8, overwrite: "auto" }),
+            onLeaveBack: () => {
+              // Revert to black when scrolling up past the very first step
+              if (i === 0) gsap.to(section, { backgroundColor: "#000000", duration: 0.8, overwrite: "auto" });
+            }
+          });
         });
       });
 
@@ -181,7 +198,7 @@ export default function Home() {
   useEffect(() => {
     if (isLoading) return;
     const ctx = gsap.context(() => {
-      const quotes = document.querySelectorAll(".community-quote");
+      const quotes = document.querySelectorAll(".community-quote, .portfolio-item");
       quotes.forEach((q) => {
         gsap.fromTo(q,
           { y: 80, opacity: 0 },
@@ -279,41 +296,71 @@ export default function Home() {
 
         {/* ── SERVICES ── */}
         <section className="relative w-full overflow-visible bg-white pt-12 md:pt-16 pb-16 md:pb-24">
-          <div className="max-w-[1400px] mx-auto w-full px-6 md:px-12">
+          <div className="max-w-[1200px] mx-auto w-full px-6 md:px-12">
             <div className="w-full flex justify-between items-end pb-4">
               <span className="text-xl md:text-2xl text-black font-medium tracking-tight" style={FONT_BODY}>Our Services</span>
             </div>
+          </div>
             
-            <div className="w-full border-t border-black">
+          <div className="w-full border-t border-black">
               {serviceCards.map((service: any, i) => {
-                const isActive = activeServices.includes(i);
+                const isHovered = activeService === i;
+                const isOpen = isHovered || visitedServices.includes(i);
                 return (
                 <div
                   key={`${service.title}-${i}`}
+                  data-service-index={i}
                   className="w-full border-b border-black cursor-pointer transition-colors duration-300 hover:bg-slate-50/50"
                   onMouseEnter={() => {
-                    if (!activeServices.includes(i)) {
-                      setActiveServices(prev => [...prev, i]);
+                    setActiveService(i);
+                    if (!visitedServices.includes(i)) {
+                      setVisitedServices(prev => [...prev, i]);
+                    }
+                  }}
+                  onMouseLeave={() => setActiveService(null)}
+                  onClick={() => {
+                    setActiveService(isHovered ? null : i);
+                    if (!visitedServices.includes(i)) {
+                      setVisitedServices(prev => [...prev, i]);
                     }
                   }}
                 >
-                  <div className="relative w-full px-4 md:px-8 min-h-[5rem] md:min-h-[10rem] flex items-center justify-center md:justify-start">
+                  <div className={`relative w-full max-w-[1200px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-center md:justify-start transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isHovered ? 'md:min-h-[18rem]' : isOpen ? 'md:min-h-[10rem]' : 'md:min-h-[7rem]'} ${isOpen ? 'py-6' : 'py-4 md:py-0'}`}>
                     
                     {/* Mobile title */}
-                    <h3 className="block md:hidden text-[2rem] sm:text-[2.5rem] text-black text-center w-full" style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif", fontWeight: 300, letterSpacing: "-0.03em" }}>
+                    <h3 className="block md:hidden text-[1.8rem] sm:text-[2.2rem] text-black w-full text-left" style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif", fontWeight: 300, letterSpacing: "-0.03em" }}>
                       {service.title}
                     </h3>
 
+                    {/* Mobile expanded content */}
+                    <div className={`md:hidden w-full overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'max-h-[500px] opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}>
+                      <p className="text-sm text-slate-600 leading-relaxed mb-3" style={FONT_BODY}>
+                        {service.desc}
+                      </p>
+                      {service.features && (
+                        <ul className="flex flex-wrap gap-2 mb-4">
+                          {service.features.map((feature: string, idx: number) => (
+                            <li key={idx} className="text-xs text-slate-500 flex items-center gap-1.5" style={FONT_BODY}>
+                              <span className="w-1 h-1 rounded-full bg-teal-500"></span> {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="w-full rounded-xl overflow-hidden shadow-lg bg-slate-100 border border-black/5">
+                        <img src={service.image} alt={service.alt} className="w-full h-auto object-cover aspect-[16/9]" />
+                      </div>
+                    </div>
+
                     {/* Desktop title */}
                     <h3 
-                      className={`hidden md:block text-[3rem] lg:text-[4rem] text-black absolute top-1/2 -translate-y-1/2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] leading-none whitespace-nowrap z-10 ${isActive ? 'left-8 -translate-x-0' : 'left-1/2 -translate-x-1/2'}`} 
+                      className={`hidden md:block text-[3rem] lg:text-[4rem] text-black absolute top-1/2 -translate-y-1/2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] leading-none whitespace-nowrap z-10 ${isOpen ? 'left-12 -translate-x-0' : 'left-1/2 -translate-x-1/2'}`} 
                       style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif", fontWeight: 300, letterSpacing: "-0.03em" }}
                     >
                       {service.title}
                     </h3>
                     
                     {/* Hover content (Right side) */}
-                    <div className={`hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 items-center gap-6 md:gap-8 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] z-20 ${isActive ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-8 pointer-events-none'}`}>
+                    <div className={`hidden md:flex absolute right-12 top-1/2 -translate-y-1/2 items-center gap-6 md:gap-8 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] z-20 ${isOpen ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-8 pointer-events-none'}`}>
                       <div className="text-right max-w-xs xl:max-w-sm flex flex-col items-end gap-3">
                         <p className="text-sm lg:text-base text-slate-600 leading-relaxed" style={FONT_DISPLAY}>
                           {service.desc}
@@ -328,41 +375,39 @@ export default function Home() {
                           </ul>
                         )}
                       </div>
-                      <div className={`w-40 lg:w-48 shrink-0 rounded-2xl overflow-hidden shadow-xl bg-slate-100 border border-black/5 transform transition-transform duration-700 ${isActive ? 'scale-105' : 'scale-100'}`}>
+                      <div className={`shrink-0 rounded-2xl overflow-hidden shadow-xl bg-slate-100 border border-black/5 transform transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isHovered ? 'w-52 lg:w-64 scale-105' : 'w-40 lg:w-48 scale-100'}`}>
                         <img src={service.image} alt={service.alt} className="w-full h-auto object-cover aspect-[4/3]" />
                       </div>
                     </div>
                   </div>
                 </div>
               )})}
-            </div>
           </div>
         </section>
 
         {/* ── STRATEGY ── */}
         <div className="w-full block">
-          <section ref={strategySectionRef} className="relative w-full bg-black text-white pt-24 pb-32 md:pt-0 md:pb-0 md:h-screen z-10 overflow-hidden shadow-2xl flex flex-col md:flex-row">
-          <div className="max-w-[1400px] mx-auto w-full px-6 md:px-12 flex flex-col md:flex-row h-full items-center md:items-start pt-12 md:pt-20 lg:pt-24 relative">
-            
-            {/* Left Column (Sticky context on mobile, fixed in place on desktop since section is pinned) */}
-            <div className="w-full lg:w-5/12 shrink-0 relative z-20">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em]" style={FONT_BODY}>
-                OUR STRATEGY
+          <section ref={strategySectionRef} className="relative w-full bg-black text-white py-24 lg:py-40 z-10 shadow-2xl flex flex-col">
+            <div className="max-w-[1200px] mx-auto w-full px-6 md:px-12 flex flex-col lg:flex-row relative items-start gap-16 lg:gap-24">
+              
+              {/* Left Column (Sticky on desktop) */}
+              <div ref={strategyLeftRef} className="w-full lg:w-5/12 shrink-0 relative z-20 lg:sticky lg:top-40 h-fit">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em]" style={FONT_BODY}>
+                  OUR STRATEGY
+                </div>
+                <h2 
+                  className="text-[2.5rem] md:text-[3.5rem] lg:text-[4.5rem] leading-[1.05] font-normal tracking-tight mt-6"
+                  style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
+                >
+                  3 steps we take <br className="hidden lg:block"/> for our projects.
+                </h2>
+                <p className="mt-8 text-lg md:text-xl text-gray-400 max-w-md leading-relaxed" style={FONT_BODY}>
+                  Our proven methodology ensures consistent quality and exceptional results for every client we serve.
+                </p>
               </div>
-              <h2 
-                className="text-[2.5rem] md:text-[3.5rem] lg:text-[4rem] leading-[1.05] font-normal tracking-tight mt-6"
-                style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
-              >
-                3 steps we take <br className="hidden lg:block"/> for our projects.
-              </h2>
-              <p className="mt-8 text-lg md:text-xl text-gray-400 max-w-md leading-relaxed" style={FONT_BODY}>
-                Our proven methodology ensures consistent quality and exceptional results for every client we serve.
-              </p>
-            </div>
 
-            {/* Right Column (Horizontal Scroll Window for Desktop) */}
-            <div className="hidden lg:block w-7/12 h-full absolute right-0 top-0 z-10 overflow-hidden mask-edge-left">
-              <div ref={strategyTrackRef} className="flex h-full items-center pl-16 pr-16 md:pr-24 w-max gap-20">
+              {/* Right Column (Vertical List) */}
+              <div className="w-full lg:w-7/12 flex flex-col pt-12 lg:pt-0 relative z-10">
                 {[
                   {
                     num: "01",
@@ -380,7 +425,7 @@ export default function Home() {
                     desc: "We deploy, optimize, and provide continuous support to ensure long-term success.",
                   },
                 ].map((step, i) => (
-                  <div key={i} className="strategy-card group flex flex-col items-start w-[450px] shrink-0 border-t border-white/20 pt-8 transition-colors duration-500 hover:border-teal-500">
+                  <div key={i} className="strategy-step group flex flex-col justify-center items-start w-full min-h-[60vh] border-t border-white/20 transition-colors duration-500 hover:border-teal-500">
                     <span 
                       className="text-[5rem] md:text-[7rem] lg:text-[9rem] leading-none font-light text-white/10 transition-colors duration-500 group-hover:text-teal-500" 
                       style={FONT_DISPLAY}
@@ -399,85 +444,49 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-            </div>
 
-            {/* Mobile Fallback (Vertical List) */}
-            <div className="w-full lg:hidden flex flex-col gap-16 mt-12 pb-12 relative z-10">
-              {[
-                  {
-                    num: "01",
-                    title: "Discover & Plan",
-                    desc: "We understand your vision, analyze requirements, and craft a clear roadmap.",
-                  },
-                  {
-                    num: "02",
-                    title: "Design & Build",
-                    desc: "We create intuitive designs and develop robust, scalable solutions tailored to your needs.",
-                  },
-                  {
-                    num: "03",
-                    title: "Launch & Grow",
-                    desc: "We deploy, optimize, and provide continuous support to ensure long-term success.",
-                  },
-                ].map((step, i) => (
-                  <div key={i} className="group flex flex-col items-start w-full border-t border-white/20 pt-8 transition-colors duration-500 hover:border-teal-500">
-                    <span 
-                      className="text-[5rem] md:text-[7rem] lg:text-[9rem] leading-none font-light text-white/10 transition-colors duration-500 group-hover:text-teal-500" 
-                      style={FONT_DISPLAY}
-                    >
-                      {step.num}
-                    </span>
-                    <h3 
-                      className="text-[2.2rem] md:text-[3rem] text-white mt-6 font-normal tracking-tight"
-                      style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
-                    >
-                      {step.title}
-                    </h3>
-                    <p className="text-gray-400 text-lg md:text-xl mt-4 max-w-lg leading-relaxed" style={FONT_BODY}>
-                      {step.desc}
-                    </p>
-                  </div>
-                ))}
             </div>
-
-          </div>
-        </section>
+          </section>
         </div>
 
         {/* ── OUR COMMUNITY ── */}
-        <section className="relative w-full bg-white text-black py-24 md:py-40 overflow-hidden z-10 shadow-2xl rounded-b-[3rem] md:rounded-b-[4rem]">
-          <div className="max-w-[1400px] mx-auto w-full px-6 md:px-12">
-            <div className="flex flex-col md:flex-row gap-12 md:gap-24 mb-20 md:mb-32">
+        <section className="relative w-full bg-white text-black py-16 md:py-24 overflow-hidden z-10 shadow-2xl rounded-b-[3rem] md:rounded-b-[4rem]">
+          <div className="max-w-[1200px] mx-auto w-full px-6 md:px-12">
+            <div className="flex flex-col md:flex-row gap-8 md:gap-16 mb-12 md:mb-20">
               <div className="w-full md:w-5/12">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-600 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em]" style={FONT_BODY}>
                   OUR COMMUNITY
                 </div>
                 <h2 
-                  className="text-[3rem] md:text-[4rem] lg:text-[5rem] leading-[1.05] font-normal tracking-tight mt-6"
+                  className="text-[2rem] md:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-normal tracking-tight mt-4"
                   style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
                 >
-                  See what customers are saying about us.
+                  See what customers<br /> are saying about us.
                 </h2>
               </div>
-              <div className="w-full md:w-5/12 md:ml-auto flex items-end pb-4">
-                <p className="text-xl text-gray-500 leading-relaxed" style={FONT_BODY}>
+              <div className="w-full md:w-5/12 md:ml-auto flex items-end pb-2">
+                <p className="text-lg text-gray-500 leading-relaxed" style={FONT_BODY}>
                   Join thousands of satisfied clients who have transformed their businesses with our solutions.
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col gap-24 md:gap-32">
+            <div className="flex flex-col gap-14 md:gap-20">
               {communityTestimonials.map((t, i) => (
-                <div key={i} className="community-quote flex flex-col gap-8 md:gap-12 w-full max-w-6xl ml-auto border-t border-black/10 pt-12 md:pt-16">
+                <div key={i} className="community-quote flex flex-col gap-6 md:gap-8 w-full max-w-6xl ml-auto border-t border-black/10 pt-8 md:pt-10">
                   <h3 
-                    className="text-[2rem] md:text-[2.8rem] lg:text-[3.2rem] leading-[1.2] font-light text-black tracking-tight"
+                    className="text-[1.4rem] md:text-[1.8rem] lg:text-[2.2rem] leading-[1.3] font-light text-black tracking-tight"
                     style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
                   >
                     &ldquo;{t.quote}&rdquo;
                   </h3>
                   <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center text-white font-bold text-xl" style={FONT_BODY}>
-                      {t.name[0]}
+                    <div className="w-14 h-14 rounded-full overflow-hidden bg-black flex items-center justify-center text-white font-bold text-xl shrink-0 border border-black/10" style={FONT_BODY}>
+                      {t.logo ? (
+                        <img src={t.logo} alt={t.name} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerText = t.name[0]; }} />
+                      ) : (
+                        t.name[0]
+                      )}
                     </div>
                     <div>
                       <p className="text-lg font-bold text-black m-0" style={FONT_BODY}>{t.name}</p>
@@ -493,7 +502,7 @@ export default function Home() {
 
         {/* ── PORTFOLIO ── */}
         <section className="relative min-h-screen w-full bg-transparent flex items-center py-20 px-6 md:py-[100px] md:px-[60px]">
-          <div style={{ maxWidth: 1280, margin: "0 auto", width: "100%" }}>
+          <div style={{ maxWidth: 1050, margin: "0 auto", width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 44, flexWrap: "wrap", gap: 16 }}>
               <div>
                 <SectionLabel>Selected Work</SectionLabel>
@@ -506,68 +515,47 @@ export default function Home() {
                   <span style={{ color: TEAL_500 }}>for themselves.</span>
                 </h2>
               </div>
-              <Link href="/portfolio" style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                padding: "13px 26px", borderRadius: 9999,
-                border: "1px solid rgba(0,0,0,0.1)",
-                color: "#000", fontSize: "0.875rem", fontWeight: 600,
-                textDecoration: "none", transition: "background 0.2s, border-color 0.2s", ...FONT_BODY,
-              }}
-                onMouseEnter={e => { e.currentTarget.style.background = TEAL_500; e.currentTarget.style.borderColor = TEAL_500; e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.1)"; e.currentTarget.style.color = "#000"; }}>
-                View Portfolio <ArrowRight size={14} />
-              </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {portfolio.slice(0, 3).map((p, i) => (
-                <MouseGlow key={i} className="rounded-[20px]" color="rgba(20,184,166,0.08)">
-                  <div style={{
-                    borderRadius: 20, overflow: "hidden", position: "relative",
-                    height: 240,
-                    background: i === 0 ? "#f0fdf9" : i === 1 ? "#f0f9ff" : "#fdf4ff",
-                    border: "1px solid rgba(0,0,0,0.06)",
-                    cursor: "pointer",
-                    transition: "box-shadow 0.25s, transform 0.2s",
-                  }}
-                    onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 12px 40px -12px rgba(20,184,166,0.25)"; e.currentTarget.style.transform = "translateY(-4px)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}>
-                    <div style={{
-                      position: "absolute", inset: 0,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      <span style={{ fontSize: "3.5rem", opacity: 0.35 }}>
-                        {i === 0 ? "📊" : i === 1 ? "📱" : "🎨"}
-                      </span>
-                    </div>
-                    <div style={{
-                      position: "absolute", bottom: 0, left: 0, right: 0,
-                      padding: "18px 20px",
-                      background: "linear-gradient(to top, rgba(255,255,255,0.97) 60%, transparent)",
-                    }}>
-                      <p style={{ margin: 0, fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL_500, marginBottom: 4, ...FONT_BODY }}>{p.category}</p>
-                      <h3 style={{ margin: 0, color: "#000000", fontSize: "1rem", fontWeight: 700, ...FONT_DISPLAY }}>{p.title}</h3>
-                      <span style={{ fontSize: 11, color: "#94a3b8" }}>{p.year}</span>
-                    </div>
-                  </div>
-                </MouseGlow>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 lg:gap-x-12 gap-y-20 mt-12 md:mt-24">
+              {portfolio.slice(0, 4).map((p, i) => (
+                <PortfolioCard key={i} {...p} index={i} />
               ))}
             </div>
+
+            <div className="mt-20 md:mt-32 flex justify-center w-full">
+              <MagneticButton>
+                <Link href="/portfolio" style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  padding: "16px 32px", borderRadius: 9999,
+                  border: "1px solid rgba(0,0,0,0.1)",
+                  color: "#000", fontSize: "1rem", fontWeight: 600,
+                  textDecoration: "none", transition: "background 0.2s, border-color 0.2s, color 0.2s", ...FONT_BODY,
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = TEAL_500; e.currentTarget.style.borderColor = TEAL_500; e.currentTarget.style.color = "#fff"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "rgba(0,0,0,0.1)"; e.currentTarget.style.color = "#000"; }}>
+                  View All Projects <ArrowRight size={20} />
+                </Link>
+              </MagneticButton>
+            </div>
+            
           </div>
         </section>
 
         {/* ── CTA FOOTER ── */}
         <section className="relative w-full bg-transparent flex items-center py-20 px-6 md:py-32 md:px-12">
-          <div className="max-w-[1400px] mx-auto w-full">
+          <div className="max-w-[1200px] mx-auto w-full">
             <div className="border-t border-black/10 pt-16 md:pt-24 flex justify-between items-center flex-wrap gap-8">
               <h2 className="text-[2.5rem] md:text-[4rem] tracking-tight leading-none text-black" style={FONT_DISPLAY}>
                 Ready to transform <br/> <span className="text-teal-500">your business?</span>
               </h2>
-              <Link href="/contact" className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 bg-black text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl" style={FONT_BODY}>
-                <span className="relative z-10 text-lg font-medium">Start Your Project</span>
-                <ArrowRight className="relative z-10 group-hover:translate-x-1 transition-transform" />
-                <div className="absolute inset-0 bg-teal-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
-              </Link>
+              <MagneticButton>
+                <Link href="/contact" className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 bg-black text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl" style={FONT_BODY}>
+                  <div className="absolute inset-0 bg-teal-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"></div>
+                  <span className="relative z-10 text-lg font-bold">Start a Project</span>
+                  <Rocket size={20} className="relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+                </Link>
+              </MagneticButton>
             </div>
           </div>
         </section>
