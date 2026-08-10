@@ -13,8 +13,8 @@ export default function ContactPage() {
       <section className="px-6 md:px-10 py-12 md:py-20 overflow-hidden">
         <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
           <div className="lg:col-span-7">
-            <RevealText as="block" className="text-[80px] md:text-[140px] font-medium leading-[0.85] tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>Have an</RevealText>
-            <RevealText as="block" delay={0.1} className="text-[80px] md:text-[140px] font-medium leading-[0.85] tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>idea?</RevealText>
+            <RevealText as="block" className="text-6xl md:text-[100px] font-medium leading-[0.95] tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>Have an</RevealText>
+            <RevealText as="block" delay={0.1} className="text-6xl md:text-[100px] font-medium leading-[0.95] tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>idea?</RevealText>
             
             <p className="mt-10 md:mt-16 text-xl md:text-2xl text-slate-500 max-w-lg leading-relaxed" style={FONT_BODY}>
               Have a project in mind? An idea you&apos;re still fleshing out? Either way, reach out—we&apos;d love to have a conversation.
