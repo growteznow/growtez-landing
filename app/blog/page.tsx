@@ -1,96 +1,40 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Clock, Rocket } from "lucide-react";
-import RevealText from "@/components/RevealText";
+import { ArrowRight, Clock, Rocket, AlertTriangle, Newspaper, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { collection, query, where, orderBy, getDocs, Timestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion, AnimatePresence } from "framer-motion";
-import { FONT_DISPLAY, FONT_BODY, TEAL_400, TEAL_500, SLATE_400, SLATE_500, PAGE_BG } from "@/lib/constants";
+import RevealText from "@/components/RevealText";
 import MagneticButton from "@/components/MagneticButton";
+import { FONT_DISPLAY, FONT_BODY, TEAL_400, TEAL_500, SLATE_400, SLATE_500, PAGE_BG } from "@/lib/constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface BlogPost {
-  slug: string;
+  id: string;
   title: string;
-  excerpt: string;
-  category: string;
-  readTime: string;
-  date: string;
-  featured?: boolean;
-  gradient: string;
-  icon: string;
+  slug?: string;
+  excerpt?: string;
+  coverImage?: string;
+  category?: string;
+  publishedAt?: Timestamp | null;
+  readingTime?: string;
+  isPublished?: boolean;
 }
 
-const blogPosts: BlogPost[] = [
-  {
-    slug: "future-of-web-development-2025",
-    title: "The Future of Web Development: Trends Shaping 2025 and Beyond",
-    excerpt: "From AI-assisted coding to edge-first architectures, we explore the technologies and paradigms redefining how the web is built — and what it means for your next project.",
-    category: "Web Development",
-    readTime: "8 min read",
-    date: "Aug 18, 2026",
-    featured: true,
-    gradient: "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f3d3e 100%)",
-    icon: "🌐",
-  },
-  {
-    slug: "ui-ux-design-principles",
-    title: "10 UI/UX Principles That Separate Good Products from Great Ones",
-    excerpt: "Great design is not just aesthetic — it is purposeful. Discover the principles our design team uses to craft interfaces that convert, retain, and delight users.",
-    category: "UI/UX Design",
-    readTime: "6 min read",
-    date: "Aug 10, 2026",
-    gradient: "linear-gradient(135deg, #1a0533 0%, #3b0764 50%, #1e1b4b 100%)",
-    icon: "🎨",
-  },
-  {
-    slug: "mobile-app-performance-tips",
-    title: "Optimising Mobile App Performance: A Developer Playbook",
-    excerpt: "Speed is a feature. We break down the proven techniques — lazy loading, tree shaking, caching strategies — that keep your mobile app snappy at every interaction.",
-    category: "App Development",
-    readTime: "10 min read",
-    date: "Jul 28, 2026",
-    gradient: "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
-    icon: "📱",
-  },
-  {
-    slug: "digital-marketing-seo-2025",
-    title: "SEO in the Age of AI: What Changed and How to Adapt",
-    excerpt: "Search is no longer just about keywords. With AI-generated answers reshaping SERPs, here is your updated playbook for staying visible and driving organic growth.",
-    category: "Digital Marketing",
-    readTime: "7 min read",
-    date: "Jul 15, 2026",
-    gradient: "linear-gradient(135deg, #3b1c32 0%, #7c2d12 50%, #431407 100%)",
-    icon: "📈",
-  },
-  {
-    slug: "ai-integration-business",
-    title: "Integrating AI into Your Business: A Practical Roadmap",
-    excerpt: "Not every company needs a large language model. Learn how to identify the right AI use cases, avoid costly pitfalls, and ship integrations that create real leverage.",
-    category: "AI Integration",
-    readTime: "9 min read",
-    date: "Jul 2, 2026",
-    gradient: "linear-gradient(135deg, #0d1b2a 0%, #1b4332 50%, #064e3b 100%)",
-    icon: "🤖",
-  },
-  {
-    slug: "brand-identity-design",
-    title: "Why Your Brand Identity Is Your Most Valuable Business Asset",
-    excerpt: "A logo is not a brand. Discover how strategic visual identity — from typography to motion — shapes perception and builds the kind of trust that outlasts any campaign.",
-    category: "Branding",
-    readTime: "5 min read",
-    date: "Jun 20, 2026",
-    gradient: "linear-gradient(135deg, #1c1917 0%, #292524 50%, #3f3f46 100%)",
-    icon: "✨",
-  },
-];
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function formatDate(ts?: Timestamp | null): string {
+  if (!ts) return "";
+  const d = ts.toDate ? ts.toDate() : new Date(ts as unknown as string);
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+}
 
-const categories = ["All", "Web Development", "UI/UX Design", "App Development", "Digital Marketing", "AI Integration", "Branding"];
-
-function categoryColor(cat: string): string {
+function categoryColor(cat?: string): string {
   const map: Record<string, string> = {
     "Web Development": "#0F8A8A",
     "UI/UX Design": "#7c3aed",
@@ -99,22 +43,32 @@ function categoryColor(cat: string): string {
     "AI Integration": "#059669",
     "Branding": "#64748b",
   };
-  return map[cat] ?? TEAL_500;
+  return (cat && map[cat]) ? map[cat] : TEAL_500;
 }
 
+const GRADIENTS: string[] = [
+  "linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#0f3d3e 100%)",
+  "linear-gradient(135deg,#1a0533 0%,#3b0764 50%,#1e1b4b 100%)",
+  "linear-gradient(135deg,#0f2027 0%,#203a43 50%,#2c5364 100%)",
+  "linear-gradient(135deg,#3b1c32 0%,#7c2d12 50%,#431407 100%)",
+  "linear-gradient(135deg,#0d1b2a 0%,#1b4332 50%,#064e3b 100%)",
+  "linear-gradient(135deg,#1c1917 0%,#292524 50%,#3f3f46 100%)",
+];
+
+// ─── Blog Card ────────────────────────────────────────────────────────────────
 function BlogCard({ post, index }: { post: BlogPost; index: number }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
+  const color = categoryColor(post.category);
+  const gradient = GRADIENTS[index % GRADIENTS.length];
 
   useEffect(() => {
     const card = cardRef.current;
     if (!card) return;
-    gsap.fromTo(
-      card,
-      { opacity: 0, y: 60 },
-      { opacity: 1, y: 0, duration: 0.9, delay: index * 0.1, ease: "power3.out",
-        scrollTrigger: { trigger: card, start: "top 88%" } }
-    );
+    gsap.fromTo(card, { opacity: 0, y: 60 }, {
+      opacity: 1, y: 0, duration: 0.9, delay: index * 0.08, ease: "power3.out",
+      scrollTrigger: { trigger: card, start: "top 88%" },
+    });
   }, [index]);
 
   return (
@@ -124,131 +78,217 @@ function BlogCard({ post, index }: { post: BlogPost; index: number }) {
       onMouseLeave={() => setHovered(false)}
       style={{
         borderRadius: 24, overflow: "hidden", background: "#ffffff",
-        border: hovered ? `1px solid ${categoryColor(post.category)}40` : "1px solid rgba(0,0,0,0.08)",
-        boxShadow: hovered ? `0 24px 48px -12px ${categoryColor(post.category)}30` : "0 1px 3px rgba(0,0,0,0.05)",
-        transition: "border-color 0.3s, box-shadow 0.3s, transform 0.3s",
+        border: hovered ? `1px solid ${color}40` : "1px solid rgba(0,0,0,0.08)",
+        boxShadow: hovered ? `0 24px 48px -12px ${color}25` : "0 1px 3px rgba(0,0,0,0.05)",
+        transition: "border-color 0.3s, box-shadow 0.3s, transform 0.35s cubic-bezier(0.16,1,0.3,1)",
         transform: hovered ? "translateY(-6px)" : "translateY(0)",
         display: "flex", flexDirection: "column",
       }}
     >
-      <div style={{
-        height: 180, background: post.gradient, display: "flex", alignItems: "center",
-        justifyContent: "center", fontSize: "3.5rem", position: "relative", overflow: "hidden",
-      }}>
-        <span style={{ filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.4))", transition: "transform 0.4s", transform: hovered ? "scale(1.15)" : "scale(1)" }}>
-          {post.icon}
-        </span>
-        <div style={{
-          position: "absolute", inset: 0,
+      {/* Cover image or gradient strip */}
+      <div style={{ height: 200, position: "relative", overflow: "hidden", background: gradient }}>
+        {post.coverImage ? (
+          <img
+            src={post.coverImage}
+            alt={post.title}
+            style={{ width: "100%", height: "100%", objectFit: "cover",
+              transition: "transform 0.5s ease",
+              transform: hovered ? "scale(1.05)" : "scale(1)" }}
+          />
+        ) : (
+          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Newspaper size={48} style={{ color: "rgba(255,255,255,0.2)" }} />
+          </div>
+        )}
+        {/* Grid overlay */}
+        <div style={{ position: "absolute", inset: 0,
           backgroundImage: "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }} />
-      </div>
-
-      <div style={{ padding: "1.5rem", flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          backgroundSize: "40px 40px" }} />
+        {/* Category badge on image */}
+        {post.category && (
           <span style={{
+            position: "absolute", top: 12, left: 12,
             fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase",
-            color: categoryColor(post.category), background: `${categoryColor(post.category)}12`,
-            padding: "3px 10px", borderRadius: 9999, ...FONT_BODY,
+            color: "#fff", background: `${color}cc`,
+            padding: "3px 10px", borderRadius: 9999, backdropFilter: "blur(8px)", ...FONT_BODY,
           }}>
             {post.category}
           </span>
-          <span style={{ fontSize: "0.75rem", color: SLATE_400, display: "flex", alignItems: "center", gap: 4, ...FONT_BODY }}>
-            <Clock size={11} />{post.readTime}
-          </span>
+        )}
+      </div>
+
+      {/* Card body */}
+      <div style={{ padding: "1.4rem", flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          {post.readingTime && (
+            <span style={{ fontSize: "0.75rem", color: SLATE_400, display: "flex", alignItems: "center", gap: 4, ...FONT_BODY }}>
+              <Clock size={11} />{post.readingTime}
+            </span>
+          )}
+          {post.publishedAt && (
+            <span style={{ fontSize: "0.75rem", color: SLATE_400, ...FONT_BODY }}>· {formatDate(post.publishedAt)}</span>
+          )}
         </div>
 
-        <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a", lineHeight: 1.4, margin: 0, ...FONT_DISPLAY }}>
+        <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#0f172a", lineHeight: 1.45, margin: 0, ...FONT_DISPLAY }}>
           {post.title}
         </h3>
 
-        <p style={{ fontSize: "0.875rem", color: SLATE_500, lineHeight: 1.75, margin: 0, flex: 1, ...FONT_BODY }}>
-          {post.excerpt}
-        </p>
+        {post.excerpt && (
+          <p style={{ fontSize: "0.875rem", color: SLATE_500, lineHeight: 1.75, margin: 0, flex: 1,
+            display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", ...FONT_BODY }}>
+            {post.excerpt}
+          </p>
+        )}
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4, paddingTop: 16, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-          <span style={{ fontSize: "0.8rem", color: SLATE_400, ...FONT_BODY }}>{post.date}</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.8rem", fontWeight: 600, color: categoryColor(post.category), ...FONT_BODY }}>
-            Read more <ArrowRight size={13} style={{ transition: "transform 0.2s", transform: hovered ? "translateX(4px)" : "none" }} />
-          </span>
+        <div style={{ paddingTop: 14, borderTop: "1px solid rgba(0,0,0,0.06)", display: "flex", justifyContent: "flex-end" }}>
+          <Link href={`/blog/${post.id}`} style={{
+            display: "inline-flex", alignItems: "center", gap: 4, fontSize: "0.82rem",
+            fontWeight: 600, color: color, textDecoration: "none", ...FONT_BODY,
+          }}>
+            Read more
+            <ArrowRight size={13} style={{ transition: "transform 0.2s", transform: hovered ? "translateX(4px)" : "none" }} />
+          </Link>
         </div>
       </div>
     </div>
   );
 }
 
-function FeaturedPost({ post }: { post: BlogPost }) {
+// ─── Featured Card ────────────────────────────────────────────────────────────
+function FeaturedCard({ post }: { post: BlogPost }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = useState(false);
+  const color = categoryColor(post.category);
+
   useEffect(() => {
     if (!ref.current) return;
-    gsap.fromTo(ref.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1.2, ease: "power4.out", delay: 0.2 });
+    gsap.fromTo(ref.current, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1.1, ease: "power4.out", delay: 0.15 });
   }, []);
 
   return (
-    <div ref={ref} style={{
-      borderRadius: 32, overflow: "hidden", background: post.gradient, position: "relative",
-      minHeight: 420, display: "flex", flexDirection: "column", justifyContent: "flex-end",
-      padding: "2.5rem", border: "1px solid rgba(255,255,255,0.08)",
-      boxShadow: "0 32px 80px -20px rgba(0,0,0,0.45)",
-    }}>
-      <div style={{
-        position: "absolute", inset: 0,
+    <div
+      ref={ref}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        borderRadius: 28, overflow: "hidden", background: "#000",
+        position: "relative", minHeight: 380,
+        display: "flex", flexDirection: "column", justifyContent: "flex-end",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: hovered ? "0 32px 80px -16px rgba(0,0,0,0.5)" : "0 20px 60px -20px rgba(0,0,0,0.35)",
+        transition: "box-shadow 0.35s",
+      }}
+    >
+      {/* Cover or gradient background */}
+      {post.coverImage ? (
+        <img src={post.coverImage} alt={post.title} style={{
+          position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
+          transition: "transform 0.6s ease", transform: hovered ? "scale(1.04)" : "scale(1)",
+        }} />
+      ) : (
+        <div style={{ position: "absolute", inset: 0, background: GRADIENTS[0] }} />
+      )}
+      {/* Dark gradient overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 55%, transparent 100%)" }} />
+      {/* Grid overlay */}
+      <div style={{ position: "absolute", inset: 0,
         backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
-        backgroundSize: "60px 60px", pointerEvents: "none",
-      }} />
-      <div style={{
-        position: "absolute", top: "20%", right: "15%", width: 300, height: 300, borderRadius: "50%",
-        background: `radial-gradient(circle, ${TEAL_500}50 0%, transparent 70%)`,
-        filter: "blur(60px)", pointerEvents: "none",
-      }} />
-      <div style={{ position: "absolute", top: "2rem", right: "2.5rem", fontSize: "5rem", opacity: 0.4 }}>{post.icon}</div>
+        backgroundSize: "60px 60px" }} />
+      {/* Teal glow */}
+      <div style={{ position: "absolute", bottom: 0, right: "10%", width: 260, height: 200,
+        background: `radial-gradient(circle, ${TEAL_500}40 0%, transparent 70%)`, filter: "blur(50px)" }} />
 
-      <div style={{ marginBottom: 20, display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL_400, background: "rgba(45,212,191,0.12)", border: "1px solid rgba(45,212,191,0.25)", padding: "4px 12px", borderRadius: 9999, ...FONT_BODY }}>
-          Featured
-        </span>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", background: "rgba(255,255,255,0.08)", padding: "4px 12px", borderRadius: 9999, ...FONT_BODY }}>
-          {post.category}
-        </span>
-      </div>
+      {/* Content */}
+      <div style={{ position: "relative", zIndex: 2, padding: "2rem" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase",
+            color: TEAL_400, background: "rgba(45,212,191,0.15)", border: "1px solid rgba(45,212,191,0.3)",
+            padding: "4px 12px", borderRadius: 9999, ...FONT_BODY }}>Featured</span>
+          {post.category && (
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase",
+              color: "rgba(255,255,255,0.7)", background: "rgba(255,255,255,0.1)",
+              padding: "4px 12px", borderRadius: 9999, ...FONT_BODY }}>{post.category}</span>
+          )}
+        </div>
 
-      <h2 style={{ fontSize: "clamp(1.6rem,3vw,2.4rem)", fontWeight: 700, color: "#ffffff", lineHeight: 1.2, letterSpacing: "-0.03em", maxWidth: 680, position: "relative", zIndex: 1, ...FONT_DISPLAY }}>
-        {post.title}
-      </h2>
-      <p style={{ marginTop: 16, fontSize: "1rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.7, maxWidth: 560, position: "relative", zIndex: 1, ...FONT_BODY }}>
-        {post.excerpt}
-      </p>
+        <h2 style={{ fontSize: "clamp(1.5rem,3vw,2.2rem)", fontWeight: 700, color: "#fff",
+          lineHeight: 1.25, letterSpacing: "-0.025em", margin: 0, maxWidth: 680, ...FONT_DISPLAY }}>
+          {post.title}
+        </h2>
 
-      <div style={{ marginTop: 28, display: "flex", alignItems: "center", gap: 20, position: "relative", zIndex: 1, flexWrap: "wrap" }}>
-        <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", gap: 5, ...FONT_BODY }}>
-          <Clock size={13} /> {post.readTime}
-        </span>
-        <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)", ...FONT_BODY }}>{post.date}</span>
-        <MagneticButton>
-          <a href={`/blog/${post.slug}`} style={{
-            display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 24px",
-            borderRadius: 9999, background: TEAL_500, color: "#fff", fontSize: "0.875rem",
-            fontWeight: 700, textDecoration: "none", transition: "background 0.2s, transform 0.2s", ...FONT_BODY,
-          }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = TEAL_400; e.currentTarget.style.transform = "scale(1.04)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = TEAL_500; e.currentTarget.style.transform = "scale(1)"; }}
-          >
-            Read Article <ArrowRight size={15} />
-          </a>
-        </MagneticButton>
+        {post.excerpt && (
+          <p style={{ marginTop: 12, fontSize: "0.95rem", color: "rgba(255,255,255,0.65)",
+            lineHeight: 1.7, maxWidth: 560, ...FONT_BODY,
+            display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+            {post.excerpt}
+          </p>
+        )}
+
+        <div style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+          {post.readingTime && (
+            <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", gap: 5, ...FONT_BODY }}>
+              <Clock size={12} />{post.readingTime}
+            </span>
+          )}
+          {post.publishedAt && (
+            <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)", ...FONT_BODY }}>
+              {formatDate(post.publishedAt)}
+            </span>
+          )}
+          <MagneticButton>
+            <Link href={`/blog/${post.id}`} style={{
+              display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 22px",
+              borderRadius: 9999, background: TEAL_500, color: "#fff",
+              fontSize: "0.875rem", fontWeight: 700, textDecoration: "none",
+              transition: "background 0.2s, transform 0.2s", ...FONT_BODY,
+            }}
+              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = TEAL_400; e.currentTarget.style.transform = "scale(1.04)"; }}
+              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = TEAL_500; e.currentTarget.style.transform = "scale(1)"; }}
+            >
+              Read Article <ArrowRight size={14} />
+            </Link>
+          </MagneticButton>
+        </div>
       </div>
     </div>
   );
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function BlogPage() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const featuredPost = blogPosts.find((p) => p.featured)!;
-  const filtered = activeCategory === "All"
-    ? blogPosts.filter((p) => !p.featured)
-    : blogPosts.filter((p) => p.category === activeCategory && !p.featured);
+  useEffect(() => {
+    async function load() {
+      try {
+        setLoading(true);
+        const q = query(
+          collection(db, "blog_posts"),
+          where("isPublished", "==", true),
+          orderBy("publishedAt", "desc")
+        );
+        const snap = await getDocs(q);
+        const data: BlogPost[] = snap.docs.map((d) => ({ id: d.id, ...d.data() } as BlogPost));
+        setPosts(data);
+      } catch (err: unknown) {
+        console.error(err);
+        setError((err as Error).message ?? "Failed to load posts.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  // Derive categories from live data
+  const categories = ["All", ...Array.from(new Set(posts.map((p) => p.category).filter(Boolean) as string[]))];
+  const featured = posts[0] ?? null;
+  const rest = posts.slice(1);
+  const filtered = activeCategory === "All" ? rest : rest.filter((p) => p.category === activeCategory);
 
   return (
     <main style={{ paddingTop: 100, background: PAGE_BG }}>
@@ -267,118 +307,141 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* CONTENT */}
-      <section style={{ padding: "5rem 40px 8rem", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ marginBottom: "4rem" }}>
-          <FeaturedPost post={featuredPost} />
-        </div>
+      {/* ── CONTENT ── */}
+      <section style={{ padding: "2rem 40px 8rem", maxWidth: 1200, margin: "0 auto" }}>
 
-        {/* Category Filter */}
-        <div style={{
-          display: "flex", gap: 8, flexWrap: "wrap", marginBottom: "3rem",
-          padding: "0.5rem", background: "#f8fafc", borderRadius: 16,
-          border: "1px solid rgba(0,0,0,0.06)", width: "fit-content",
-        }}>
-          {categories.map((cat) => {
-            const isActive = activeCategory === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                style={{
-                  padding: "8px 20px", borderRadius: 12, border: "none",
-                  background: isActive ? "#000000" : "transparent",
-                  color: isActive ? "#ffffff" : SLATE_500,
-                  fontSize: "0.875rem", fontWeight: 600, cursor: "pointer",
-                  transition: "all 0.25s cubic-bezier(0.16,1,0.3,1)",
-                  boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.15)" : "none", ...FONT_BODY,
-                }}
-                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "rgba(0,0,0,0.04)"; }}
-                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
-              >
-                {cat}
-              </button>
-            );
-          })}
-        </div>
+        {/* Loading */}
+        {loading && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "6rem 0", color: SLATE_400, ...FONT_BODY }}>
+            <Loader2 size={36} style={{ animation: "spin 1s linear infinite", color: TEAL_500 }} />
+            <p style={{ fontSize: "1rem" }}>Loading articles…</p>
+            <style>{`@keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }`}</style>
+          </div>
+        )}
 
-        {/* Blog Grid */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeCategory}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.75rem" }}
-          >
-            {filtered.length > 0 ? (
-              filtered.map((post, i) => <BlogCard key={post.slug} post={post} index={i} />)
-            ) : (
-              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "5rem 2rem", color: SLATE_400, ...FONT_BODY }}>
-                <p style={{ fontSize: "3rem", marginBottom: 16 }}>📭</p>
-                <p style={{ fontSize: "1.1rem", fontWeight: 600, color: SLATE_500 }}>No posts in this category yet.</p>
-                <p style={{ marginTop: 8 }}>We are working on some great content. Check back soon!</p>
-                <button
-                  onClick={() => setActiveCategory("All")}
-                  style={{
-                    marginTop: 24, padding: "10px 28px", borderRadius: 9999,
-                    border: "1px solid rgba(0,0,0,0.1)", background: "transparent",
-                    color: "#000", fontWeight: 600, cursor: "pointer", transition: "background 0.2s", ...FONT_BODY,
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "#f1f5f9")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                >
-                  View all posts
-                </button>
+        {/* Error */}
+        {!loading && error && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "6rem 0", textAlign: "center", color: SLATE_500, ...FONT_BODY }}>
+            <AlertTriangle size={40} style={{ color: "#ef4444" }} />
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#0f172a", ...FONT_DISPLAY }}>Unable to load blog posts</h3>
+            <p style={{ maxWidth: 400, lineHeight: 1.7, fontSize: "0.9rem" }}>{error}</p>
+          </div>
+        )}
+
+        {/* Empty */}
+        {!loading && !error && posts.length === 0 && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "6rem 0", textAlign: "center", color: SLATE_500, ...FONT_BODY }}>
+            <Newspaper size={48} style={{ color: SLATE_400 }} />
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#0f172a", ...FONT_DISPLAY }}>No posts yet</h3>
+            <p style={{ fontSize: "0.9rem" }}>We are working on some great content. Check back soon!</p>
+          </div>
+        )}
+
+        {/* Posts */}
+        {!loading && !error && posts.length > 0 && (
+          <>
+            {/* Featured */}
+            {featured && (
+              <div style={{ marginBottom: "3.5rem" }}>
+                <FeaturedCard post={featured} />
               </div>
             )}
-          </motion.div>
-        </AnimatePresence>
+
+            {/* Category filter */}
+            {categories.length > 1 && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: "2.5rem",
+                padding: "0.4rem", background: "#f8fafc", borderRadius: 14,
+                border: "1px solid rgba(0,0,0,0.06)", width: "fit-content" }}>
+                {categories.map((cat) => {
+                  const isActive = activeCategory === cat;
+                  return (
+                    <button key={cat} onClick={() => setActiveCategory(cat)} style={{
+                      padding: "7px 18px", borderRadius: 10, border: "none",
+                      background: isActive ? "#000" : "transparent",
+                      color: isActive ? "#fff" : SLATE_500,
+                      fontSize: "0.85rem", fontWeight: 600, cursor: "pointer",
+                      transition: "all 0.22s cubic-bezier(0.16,1,0.3,1)",
+                      boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.14)" : "none", ...FONT_BODY,
+                    }}
+                      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "rgba(0,0,0,0.04)"; }}
+                      onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Grid */}
+            <AnimatePresence mode="wait">
+              <motion.div key={activeCategory}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: "1.75rem" }}
+              >
+                {filtered.length > 0 ? (
+                  filtered.map((p, i) => <BlogCard key={p.id} post={p} index={i} />)
+                ) : (
+                  <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "4rem 2rem", color: SLATE_400, ...FONT_BODY }}>
+                    <p style={{ fontSize: "2.5rem", marginBottom: 12 }}>📭</p>
+                    <p style={{ fontWeight: 600, color: SLATE_500 }}>No posts in this category yet.</p>
+                    <button onClick={() => setActiveCategory("All")} style={{
+                      marginTop: 20, padding: "9px 24px", borderRadius: 9999,
+                      border: "1px solid rgba(0,0,0,0.1)", background: "transparent",
+                      color: "#000", fontWeight: 600, cursor: "pointer", transition: "background 0.2s", ...FONT_BODY,
+                    }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#f1f5f9")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >View all posts</button>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </>
+        )}
       </section>
 
-      {/* CTA */}
-      <section style={{ background: "#000000", padding: "7rem 40px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-        <div style={{
-          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+      {/* ── CTA ── */}
+      <section style={{ background: "#000", padding: "7rem 40px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
           width: 500, height: 300, borderRadius: "50%",
-          background: `radial-gradient(circle, ${TEAL_500}25 0%, transparent 70%)`,
-          filter: "blur(70px)", pointerEvents: "none",
-        }} />
-        <div style={{ maxWidth: 700, margin: "0 auto", position: "relative", zIndex: 1 }}>
-          <h2 style={{
-            fontSize: "clamp(2rem,4vw,3.5rem)", fontWeight: 700, color: "#ffffff",
-            letterSpacing: "-0.04em", lineHeight: 1.1, margin: 0, ...FONT_DISPLAY,
-          }}>
+          background: `radial-gradient(circle,${TEAL_500}22 0%,transparent 70%)`,
+          filter: "blur(70px)", pointerEvents: "none" }} />
+        <div style={{ maxWidth: 680, margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <h2 style={{ fontSize: "clamp(2rem,4vw,3.2rem)", fontWeight: 700, color: "#fff",
+            letterSpacing: "-0.04em", lineHeight: 1.1, margin: 0, ...FONT_DISPLAY }}>
             Ready to build something <span style={{ color: TEAL_500 }}>remarkable?</span>
           </h2>
-          <p style={{ marginTop: 20, fontSize: "1.1rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.7, ...FONT_BODY }}>
-            Let us turn your vision into a high-performance digital product. Our team is ready when you are.
+          <p style={{ marginTop: 18, fontSize: "1rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.7, ...FONT_BODY }}>
+            Let us turn your vision into a high-performance digital product.
           </p>
-          <div style={{ marginTop: 36, display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+          <div style={{ marginTop: 32, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <MagneticButton>
               <Link href="/contact" style={{
-                display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 32px",
-                borderRadius: 9999, background: TEAL_500, color: "#ffffff", fontWeight: 700,
-                fontSize: "0.95rem", textDecoration: "none", transition: "background 0.2s, transform 0.2s", ...FONT_BODY,
+                display: "inline-flex", alignItems: "center", gap: 9, padding: "13px 30px",
+                borderRadius: 9999, background: TEAL_500, color: "#fff", fontWeight: 700,
+                fontSize: "0.9rem", textDecoration: "none", transition: "background 0.2s,transform 0.2s", ...FONT_BODY,
               }}
                 onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = TEAL_400; e.currentTarget.style.transform = "scale(1.04)"; }}
                 onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = TEAL_500; e.currentTarget.style.transform = "scale(1)"; }}
               >
-                <Rocket size={17} /> Start a Project
+                <Rocket size={16} /> Start a Project
               </Link>
             </MagneticButton>
             <MagneticButton>
               <Link href="/portfolio" style={{
-                display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 32px",
+                display: "inline-flex", alignItems: "center", gap: 7, padding: "13px 30px",
                 borderRadius: 9999, border: "1px solid rgba(255,255,255,0.15)",
-                color: "rgba(255,255,255,0.8)", fontWeight: 600, fontSize: "0.95rem",
-                textDecoration: "none", transition: "border-color 0.2s, color 0.2s", ...FONT_BODY,
+                color: "rgba(255,255,255,0.75)", fontWeight: 600, fontSize: "0.9rem",
+                textDecoration: "none", transition: "border-color 0.2s,color 0.2s", ...FONT_BODY,
               }}
                 onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.borderColor = TEAL_500; e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; e.currentTarget.style.color = "rgba(255,255,255,0.8)"; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; e.currentTarget.style.color = "rgba(255,255,255,0.75)"; }}
               >
-                View Our Work <ArrowRight size={15} />
+                View Our Work <ArrowRight size={14} />
               </Link>
             </MagneticButton>
           </div>
