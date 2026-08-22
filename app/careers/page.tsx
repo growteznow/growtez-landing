@@ -1,13 +1,87 @@
 "use client";
 
+import { useState } from "react";
 import { FONT_DISPLAY, FONT_BODY, PAGE_BG, SECTION_BG, SLATE_500, TEAL_500 } from "@/lib/constants";
 import { Pill } from "@/components/UI";
 import RevealText from "@/components/RevealText";
-import { Briefcase, GraduationCap, MapPin, Award, Rocket, Users } from "lucide-react";
+import { Briefcase, GraduationCap, MapPin, Award, Rocket, Users, Check, AlertCircle, Loader2, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import MagneticButton from "@/components/MagneticButton";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function CareersPage() {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    position: "",
+    linkedin: "",
+    portfolio: "",
+    resume: "",
+    whyJoin: "",
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    if (error) setError(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      !formData.fullName.trim() ||
+      !formData.email.trim() ||
+      !formData.phone.trim() ||
+      !formData.position ||
+      !formData.resume.trim() ||
+      !formData.whyJoin.trim()
+    ) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      await addDoc(collection(db, "internships"), {
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        position: formData.position,
+        linkedin: formData.linkedin.trim() || null,
+        portfolio: formData.portfolio.trim() || null,
+        resume: formData.resume.trim(),
+        whyJoin: formData.whyJoin.trim(),
+        createdAt: serverTimestamp(),
+      });
+
+      setIsSubmitting(false);
+      setSubmitted(true);
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        position: "",
+        linkedin: "",
+        portfolio: "",
+        resume: "",
+        whyJoin: "",
+      });
+      setTimeout(() => setSubmitted(false), 6000);
+    } catch (err: any) {
+      console.error("Error submitting internship application to Firebase:", err);
+      setIsSubmitting(false);
+      setError("Failed to submit application. Please try again.");
+    }
+  };
+
   return (
     <main style={{ paddingTop: 100 }}>
       {/* ── HEADER ── */}
@@ -111,59 +185,177 @@ export default function CareersPage() {
               <p className="text-slate-500" style={FONT_BODY}>Fill out the form below and we'll get back to you within 48 hours</p>
             </div>
 
-            <form className="flex flex-col gap-6" style={FONT_BODY} onSubmit={(e) => e.preventDefault()}>
+            {submitted && (
+              <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-4 text-emerald-800 animate-in fade-in slide-in-from-top-4 duration-300" style={FONT_BODY}>
+                <div className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                  <Check size={20} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-base" style={FONT_DISPLAY}>Application Submitted!</h4>
+                  <p className="text-sm text-emerald-700">Thank you for applying. Our team will review your application and contact you soon.</p>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="mb-8 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3 text-rose-700 text-sm font-medium" style={FONT_BODY}>
+                <AlertCircle size={20} className="shrink-0 text-rose-500" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form className="flex flex-col gap-6" style={FONT_BODY} onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-semibold text-black">Full Name *</label>
-                  <input type="text" required className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors" placeholder="John Doe" />
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    placeholder="Enter your full name"
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-semibold text-black">Email Address *</label>
-                  <input type="email" required className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors" placeholder="john@example.com" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    placeholder="Enter your email address"
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-semibold text-black">Phone Number *</label>
-                  <input type="tel" required className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors" placeholder="+91 98765 43210" />
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    placeholder="Enter your phone number"
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-semibold text-black">Position Applying For *</label>
-                  <select required className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors appearance-none cursor-pointer">
-                    <option value="" disabled selected>Select a position</option>
-                    <option value="web">Web Development Intern</option>
-                    <option value="app">App Development Intern</option>
-                    <option value="ui">UI/UX Design Intern</option>
-                    <option value="marketing">Digital Marketing Intern</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      name="position"
+                      value={formData.position}
+                      onChange={handleChange}
+                      required
+                      className={`w-full px-5 py-4 pr-12 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors appearance-none cursor-pointer ${
+                        formData.position ? "text-black" : "text-slate-400"
+                      }`}
+                    >
+                      <option value="" disabled className="text-slate-400">Select a position</option>
+                      <option value="Web Development Intern" className="text-black">Web Development Intern</option>
+                      <option value="App Development Intern" className="text-black">App Development Intern</option>
+                      <option value="UI/UX Design Intern" className="text-black">UI/UX Design Intern</option>
+                      <option value="Digital Marketing Intern" className="text-black">Digital Marketing Intern</option>
+                    </select>
+                    <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-black">LinkedIn Profile</label>
-                  <input type="url" className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors" placeholder="https://linkedin.com/in/..." />
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-black">LinkedIn Profile</label>
+                    <span className="text-xs text-slate-400">Link to your public LinkedIn profile</span>
+                  </div>
+                  <input
+                    type="text"
+                    name="linkedin"
+                    value={formData.linkedin}
+                    onChange={handleChange}
+                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    placeholder="e.g. linkedin.com/in/yourname"
+                  />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-black">Portfolio / GitHub URL</label>
-                  <input type="url" className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors" placeholder="https://github.com/..." />
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-black">Portfolio / GitHub / Projects</label>
+                    <span className="text-xs text-slate-400">Link to your website, GitHub, Behance, or Figma</span>
+                  </div>
+                  <input
+                    type="text"
+                    name="portfolio"
+                    value={formData.portfolio}
+                    onChange={handleChange}
+                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    placeholder="e.g. github.com/yourname or portfolio link"
+                  />
                 </div>
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-black">Resume/CV Link *</label>
-                <input type="url" required className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors" placeholder="Google Drive or Dropbox link to your resume" />
+                <div className="flex flex-col">
+                  <label className="text-sm font-semibold text-black">Resume / CV Link *</label>
+                  <span className="text-xs text-slate-400">
+                    Paste a link from Google Drive, Dropbox, or OneDrive. Ensure link sharing permission is set to "Anyone with the link can view".
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  name="resume"
+                  value={formData.resume}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                  placeholder="e.g. drive.google.com/file/d/your-resume-id"
+                />
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-black">Why do you want to join growtez? *</label>
-                <textarea required rows={4} className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors resize-none" placeholder="Tell us a bit about yourself and why you'd be a great fit..." />
+                <div className="flex flex-col">
+                  <label className="text-sm font-semibold text-black">Why do you want to join growtez? *</label>
+                  <span className="text-xs text-slate-400">Share your background, key skills, and why you're interested in this internship.</span>
+                </div>
+                <textarea
+                  name="whyJoin"
+                  value={formData.whyJoin}
+                  onChange={handleChange}
+                  required
+                  rows={4}
+                  className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors resize-none"
+                  placeholder="Tell us about yourself, your skills, and what you hope to achieve..."
+                />
               </div>
 
               <MagneticButton>
-                <button type="submit" className="mt-4 w-full py-4 bg-teal-500 text-white rounded-xl font-bold text-lg hover:bg-teal-600 transition-colors shadow-lg shadow-teal-500/20">
-                  Submit Application
+                <button
+                  type="submit"
+                  disabled={isSubmitting || submitted}
+                  className={`mt-4 w-full py-4 text-white rounded-xl font-bold text-lg transition-all duration-300 shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-90 ${
+                    submitted
+                      ? "bg-emerald-600 shadow-emerald-600/20"
+                      : "bg-teal-500 hover:bg-teal-600 shadow-teal-500/20"
+                  }`}
+                >
+                  {submitted ? (
+                    <>
+                      <Check className="w-5 h-5 stroke-[2.5]" />
+                      <span>Submitted!</span>
+                    </>
+                  ) : isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    "Submit Application"
+                  )}
                 </button>
               </MagneticButton>
             </form>
@@ -175,3 +367,4 @@ export default function CareersPage() {
     </main>
   );
 }
+

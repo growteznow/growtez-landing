@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { FONT_DISPLAY, FONT_BODY, SECTION_BG, PAGE_BG, SLATE_400, TEAL_400, TEAL_500, CARD_BG } from "@/lib/constants";
 import { Pill } from "@/components/UI";
 import RevealText from "@/components/RevealText";
@@ -186,9 +187,9 @@ export default function ContactPage() {
 
           <div className="mt-20">
             <MagneticButton strength={0.3}>
-              <a href="#contact" className="inline-flex items-center gap-4 px-12 py-6 md:px-14 md:py-8 rounded-full bg-teal-500 hover:bg-black text-white text-lg md:text-xl font-bold no-underline transition-colors duration-300" style={FONT_BODY}>
+              <Link href="/careers#internships" className="inline-flex items-center gap-4 px-12 py-6 md:px-14 md:py-8 rounded-full bg-teal-500 hover:bg-black text-white text-lg md:text-xl font-bold no-underline transition-colors duration-300" style={FONT_BODY}>
                 Apply Now <ArrowRight size={24} />
-              </a>
+              </Link>
             </MagneticButton>
           </div>
         </div>
