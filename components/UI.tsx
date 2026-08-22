@@ -111,7 +111,7 @@ export function TestimonialCard({ quote, name, role, stars, index }: { quote: st
   );
 }
 
-export function PortfolioCard({ src, title, category, year, index }: { src: string; title: string; category: string; year: string; index: number }) {
+export function PortfolioCard({ src, title, category, year, url, index }: { src: string; title: string; category: string; year: string; url?: string; index: number }) {
   const cardRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!cardRef.current) return;
@@ -123,8 +123,9 @@ export function PortfolioCard({ src, title, category, year, index }: { src: stri
     });
     return () => { anim.kill(); };
   }, [index]);
-  return (
-    <div ref={cardRef}>
+
+  const inner = (
+    <>
       <div style={{ borderRadius: 16, overflow: "hidden", position: "relative" }}>
         <ParallaxImage src={src} alt={title} className="h-[320px] w-full" intensity={18} />
       </div>
@@ -133,8 +134,25 @@ export function PortfolioCard({ src, title, category, year, index }: { src: stri
           <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL_500, marginBottom: 4, ...FONT_BODY }}>{category}</p>
           <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#000000", ...FONT_DISPLAY }}>{title}</h3>
         </div>
-        <span style={{ fontSize: "0.875rem", color: SLATE_500 }}>{year}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: "0.875rem", color: SLATE_500 }}>{year}</span>
+          {url && (
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: TEAL_500, ...FONT_BODY }}>
+              ↗ Visit
+            </span>
+          )}
+        </div>
       </div>
+    </>
+  );
+
+  return (
+    <div ref={cardRef}>
+      {url ? (
+        <a href={url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "block" }}>
+          {inner}
+        </a>
+      ) : inner}
     </div>
   );
 }

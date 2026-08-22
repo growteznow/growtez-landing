@@ -1,0 +1,64 @@
+// Firebase Firestore Security Rules for Growtez Blog
+// Copy these rules to: Firebase Console > Firestore Database > Rules
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Whitelist of admin emails — add/remove emails here only
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email in [
+        "contact@growtez.com",
+        "contact.growtez@gmail.com",
+        "exkrogroup@gmail.com",
+        "souravsharma13here@gmail.com",
+        "mridulroy543@gmail.com",
+        "faruk.khan.cse@gmail.com",
+        "ahmedsanjeev37@gmail.com",
+        "roy.mridul.cse@gmail.com"
+      ];
+    }
+
+    // Portfolio Collection
+    match /portfolio/{itemId} {
+      // Anyone can read portfolio items (public page)
+      allow read: if true;
+
+      // Only admins can add, edit, or delete portfolio items
+      allow write: if isAdmin();
+    }
+
+    // Blog Posts Collection
+    match /blog_posts/{postId} {
+      // Anyone can READ any blog post (the query filters by isPublished)
+      allow read: if true;
+
+      // Authenticated admins can write
+      allow write: if isAdmin();
+    }
+
+    // Contacts Collection (Contact form submissions)
+    match /contacts/{contactId} {
+      // Anyone can submit a contact form message
+      allow create: if true;
+
+      // Authenticated admins can read, update, or delete contact submissions
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Internships Collection (Internship application submissions)
+    match /internships/{internshipId} {
+      // Anyone can submit an internship application
+      allow create: if true;
+
+      // Authenticated admins can read, update, or delete internship applications
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Deny access to all other collections by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
