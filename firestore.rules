@@ -6,20 +6,27 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Whitelist of admin emails — add/remove emails here only
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email in [
+        "contact@growtez.com",
+        "contact.growtez@gmail.com",
+        "exkrogroup@gmail.com",
+        "souravsharma13here@gmail.com",
+        "mridulroy543@gmail.com",
+        "faruk.khan.cse@gmail.com",
+        "ahmedsanjeev37@gmail.com",
+        "roy.mridul.cse@gmail.com"
+      ];
+    }
+
     // Blog Posts Collection
     match /blog_posts/{postId} {
       // Anyone can READ any blog post (the query filters by isPublished)
       allow read: if true;
 
       // Authenticated admins can write
-      allow write: if request.auth != null 
-                   && (request.auth.token.email == "contact@growtez.com"
-                       || request.auth.token.email == "contact.growtez@gmail.com"
-                       || request.auth.token.email == "exkrogroup@gmail.com"
-                       || request.auth.token.email == "souravsharma13here@gmail.com"
-                       || request.auth.token.email == "mridulroy543@gmail.com"
-                       || request.auth.token.email == "faruk.khan.cse@gmail.com"
-                       || request.auth.token.email == "ahmedsanjeev37@gmail.com");
+      allow write: if isAdmin();
     }
 
     // Contacts Collection (Contact form submissions)
@@ -28,14 +35,7 @@ service cloud.firestore {
       allow create: if true;
 
       // Authenticated admins can read, update, or delete contact submissions
-      allow read, update, delete: if request.auth != null 
-                   && (request.auth.token.email == "contact@growtez.com"
-                       || request.auth.token.email == "contact.growtez@gmail.com"
-                       || request.auth.token.email == "exkrogroup@gmail.com"
-                       || request.auth.token.email == "souravsharma13here@gmail.com"
-                       || request.auth.token.email == "mridulroy543@gmail.com"
-                       || request.auth.token.email == "faruk.khan.cse@gmail.com"
-                       || request.auth.token.email == "ahmedsanjeev37@gmail.com");
+      allow read, update, delete: if isAdmin();
     }
 
     // Internships Collection (Internship application submissions)
@@ -44,14 +44,7 @@ service cloud.firestore {
       allow create: if true;
 
       // Authenticated admins can read, update, or delete internship applications
-      allow read, update, delete: if request.auth != null 
-                   && (request.auth.token.email == "contact@growtez.com"
-                       || request.auth.token.email == "contact.growtez@gmail.com"
-                       || request.auth.token.email == "exkrogroup@gmail.com"
-                       || request.auth.token.email == "souravsharma13here@gmail.com"
-                       || request.auth.token.email == "mridulroy543@gmail.com"
-                       || request.auth.token.email == "faruk.khan.cse@gmail.com"
-                       || request.auth.token.email == "ahmedsanjeev37@gmail.com");
+      allow read, update, delete: if isAdmin();
     }
 
     // Deny access to all other collections by default
