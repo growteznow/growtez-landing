@@ -20,6 +20,15 @@ service cloud.firestore {
       ];
     }
 
+    // Portfolio Collection
+    match /portfolio/{itemId} {
+      // Anyone can read portfolio items (public page)
+      allow read: if true;
+
+      // Only admins can add, edit, or delete portfolio items
+      allow write: if isAdmin();
+    }
+
     // Blog Posts Collection
     match /blog_posts/{postId} {
       // Anyone can READ any blog post (the query filters by isPublished)
