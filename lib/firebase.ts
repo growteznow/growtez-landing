@@ -2,13 +2,13 @@
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCNb-IkMSZyKUTGKUm1o04LOVYUIwWpIPg",
-  authDomain: "growtez-site.firebaseapp.com",
-  projectId: "growtez-site",
-  storageBucket: "growtez-site.firebasestorage.app",
-  messagingSenderId: "850869009700",
-  appId: "1:850869009700:web:5e2a87cbf44c3e8193c7b1",
-  measurementId: "G-6K3K85SKYZ",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // Prevent re-initialisation on Next.js hot reloads
