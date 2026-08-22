@@ -5,20 +5,54 @@ import { FONT_DISPLAY, FONT_BODY, SECTION_BG, PAGE_BG, SLATE_400, TEAL_400, TEAL
 import { Pill } from "@/components/UI";
 import RevealText from "@/components/RevealText";
 import MagneticButton from "@/components/MagneticButton";
-import { Mail, Phone, MapPin, CircleCheck, ArrowRight, ArrowUpRight, Send, Check } from "lucide-react";
+import { Mail, Phone, MapPin, CircleCheck, ArrowRight, ArrowUpRight, Send, Check, AlertCircle } from "lucide-react";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    projectType: "",
+    message: "",
+  });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    if (error) setError(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      setError("Please fill in your name, email address, and message.");
+      return;
+    }
+
+    setError(null);
     setIsSubmitting(true);
-    setTimeout(() => {
+
+    try {
+      await addDoc(collection(db, "contacts"), {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        projectType: formData.projectType.trim() || "General Inquiry",
+        message: formData.message.trim(),
+        createdAt: serverTimestamp(),
+      });
+
       setIsSubmitting(false);
       setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 4000);
-    }, 600);
+      setFormData({ name: "", email: "", projectType: "", message: "" });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err: any) {
+      console.error("Error saving contact message to Firebase:", err);
+      setIsSubmitting(false);
+      setError("Failed to send message. Please try again.");
+    }
   };
 
   return (
@@ -70,6 +104,8 @@ export default function ContactPage() {
                   <input
                     type={f.type}
                     name={f.name}
+                    value={formData[f.name as keyof typeof formData]}
+                    onChange={handleChange}
                     placeholder={f.placeholder}
                     className="w-full bg-transparent border-b border-black/20 pb-4 text-xl md:text-2xl outline-none focus:border-black transition-colors placeholder:text-black/30 peer"
                     style={FONT_BODY}
@@ -82,12 +118,21 @@ export default function ContactPage() {
                 <textarea
                   placeholder="Tell us about your project..."
                   name="message"
+                  value={formData.message}
+                  onChange={handleChange}
                   rows={3}
                   className="w-full bg-transparent border-b border-black/20 pb-4 text-xl md:text-2xl outline-none focus:border-black transition-colors placeholder:text-black/30 peer resize-none"
                   style={FONT_BODY}
                 />
                 <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-black transition-all duration-500 peer-focus:w-full"></span>
               </div>
+
+              {error && (
+                <div className="flex items-center gap-2 text-rose-600 text-sm font-medium" style={FONT_BODY}>
+                  <AlertCircle size={18} />
+                  <span>{error}</span>
+                </div>
+              )}
 
               <div className="mt-8 flex justify-start">
                 <MagneticButton strength={0.2}>

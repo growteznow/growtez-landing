@@ -22,6 +22,22 @@ service cloud.firestore {
                        || request.auth.token.email == "ahmedsanjeev37@gmail.com");
     }
 
+    // Contacts Collection (Contact form submissions)
+    match /contacts/{contactId} {
+      // Anyone can submit a contact form message
+      allow create: if true;
+
+      // Authenticated admins can read, update, or delete contact submissions
+      allow read, update, delete: if request.auth != null 
+                   && (request.auth.token.email == "contact@growtez.com"
+                       || request.auth.token.email == "contact.growtez@gmail.com"
+                       || request.auth.token.email == "exkrogroup@gmail.com"
+                       || request.auth.token.email == "souravsharma13here@gmail.com"
+                       || request.auth.token.email == "mridulroy543@gmail.com"
+                       || request.auth.token.email == "faruk.khan.cse@gmail.com"
+                       || request.auth.token.email == "ahmedsanjeev37@gmail.com");
+    }
+
     // Deny access to all other collections by default
     match /{document=**} {
       allow read, write: if false;
