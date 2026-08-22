@@ -1,12 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import { FONT_DISPLAY, FONT_BODY, SECTION_BG, PAGE_BG, SLATE_400, TEAL_400, TEAL_500, CARD_BG } from "@/lib/constants";
 import { Pill } from "@/components/UI";
 import RevealText from "@/components/RevealText";
 import MagneticButton from "@/components/MagneticButton";
-import { Mail, Phone, MapPin, CircleCheck, ArrowRight, ArrowUpRight } from "lucide-react";
+import { Mail, Phone, MapPin, CircleCheck, ArrowRight, ArrowUpRight, Send, Check } from "lucide-react";
 
 export default function ContactPage() {
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 4000);
+    }, 600);
+  };
+
   return (
     <main style={{ paddingTop: 100, background: PAGE_BG }}>
       {/* ── CONTACT SECTION ── */}
@@ -15,7 +29,7 @@ export default function ContactPage() {
           <div className="lg:col-span-7">
             <RevealText as="block" className="text-6xl md:text-[100px] font-medium leading-[0.95] tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>Have an</RevealText>
             <RevealText as="block" delay={0.1} className="text-6xl md:text-[100px] font-medium leading-[0.95] tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>idea?</RevealText>
-            
+
             <p className="mt-10 md:mt-16 text-xl md:text-2xl text-slate-500 max-w-lg leading-relaxed" style={FONT_BODY}>
               Have a project in mind? An idea you&apos;re still fleshing out? Either way, reach out—we&apos;d love to have a conversation.
             </p>
@@ -23,56 +37,78 @@ export default function ContactPage() {
             <div className="mt-16 md:mt-24 flex flex-col sm:flex-row gap-12 sm:gap-24">
               <div className="flex flex-col gap-4">
                 <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Email us</span>
-                <a href="mailto:hello@growtez.com" className="text-2xl md:text-3xl font-medium hover:text-teal-500 transition-colors flex items-center gap-2 group" style={FONT_BODY}>
-                  hello@growtez.com
-                  <ArrowUpRight size={28} className="opacity-0 -translate-x-4 translate-y-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300" />
+                <a href="mailto:contact@growtez.com" className="text-xl sm:text-2xl md:text-3xl font-medium hover:text-teal-500 transition-colors flex items-center gap-2 group whitespace-nowrap" style={FONT_BODY}>
+                  contact@growtez.com
+                  <ArrowUpRight size={28} className="shrink-0 opacity-0 -translate-x-4 translate-y-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300" />
                 </a>
               </div>
               <div className="flex flex-col gap-4">
                 <span className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Call us</span>
-                <a href="tel:+919000000000" className="text-2xl md:text-3xl font-medium hover:text-teal-500 transition-colors flex items-center gap-2 group" style={FONT_BODY}>
-                  +91 90000 00000
-                  <ArrowUpRight size={28} className="opacity-0 -translate-x-4 translate-y-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300" />
-                </a>
+                <div className="flex flex-col gap-3">
+                  <a href="tel:+919101840955" className="text-xl sm:text-2xl md:text-3xl font-medium hover:text-teal-500 transition-colors flex items-center gap-2 group whitespace-nowrap" style={FONT_BODY}>
+                    +91 9101840955
+                    <ArrowUpRight size={28} className="shrink-0 opacity-0 -translate-x-4 translate-y-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300" />
+                  </a>
+                  <a href="tel:+919387794423" className="text-xl sm:text-2xl md:text-3xl font-medium hover:text-teal-500 transition-colors flex items-center gap-2 group whitespace-nowrap" style={FONT_BODY}>
+                    +91 9387794423
+                    <ArrowUpRight size={28} className="shrink-0 opacity-0 -translate-x-4 translate-y-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300" />
+                  </a>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Form */}
           <div className="lg:col-span-5 w-full lg:mt-8">
-            <form onSubmit={e => e.preventDefault()} className="flex flex-col gap-12 md:gap-16">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-12 md:gap-16">
               {[
-                { type: "text",  placeholder: "What's your name?", name: "name" },
+                { type: "text", placeholder: "What's your name?", name: "name" },
                 { type: "email", placeholder: "Your email address", name: "email" },
-                { type: "text",  placeholder: "Project Type (Web / App / AI)", name: "projectType" },
+                { type: "text", placeholder: "Project Type (Web / App / AI)", name: "projectType" },
               ].map((f, i) => (
                 <div key={i} className="relative group">
-                  <input 
-                    type={f.type} 
+                  <input
+                    type={f.type}
                     name={f.name}
-                    placeholder={f.placeholder} 
-                    className="w-full bg-transparent border-b border-black/20 pb-4 text-xl md:text-2xl outline-none focus:border-black transition-colors placeholder:text-black/30 peer" 
-                    style={FONT_BODY} 
+                    placeholder={f.placeholder}
+                    className="w-full bg-transparent border-b border-black/20 pb-4 text-xl md:text-2xl outline-none focus:border-black transition-colors placeholder:text-black/30 peer"
+                    style={FONT_BODY}
                   />
                   <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-black transition-all duration-500 peer-focus:w-full"></span>
                 </div>
               ))}
-              
+
               <div className="relative group">
-                <textarea 
-                  placeholder="Tell us about your project..." 
+                <textarea
+                  placeholder="Tell us about your project..."
                   name="message"
                   rows={3}
-                  className="w-full bg-transparent border-b border-black/20 pb-4 text-xl md:text-2xl outline-none focus:border-black transition-colors placeholder:text-black/30 peer resize-none" 
-                  style={FONT_BODY} 
+                  className="w-full bg-transparent border-b border-black/20 pb-4 text-xl md:text-2xl outline-none focus:border-black transition-colors placeholder:text-black/30 peer resize-none"
+                  style={FONT_BODY}
                 />
                 <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-black transition-all duration-500 peer-focus:w-full"></span>
               </div>
-              
+
               <div className="mt-8 flex justify-start">
                 <MagneticButton strength={0.2}>
-                  <button type="submit" className="bg-black hover:bg-teal-500 text-white rounded-full w-32 h-32 md:w-44 md:h-44 flex items-center justify-center text-lg md:text-xl font-medium transition-colors duration-300" style={FONT_BODY}>
-                    Send
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="group relative bg-black hover:bg-teal-500 text-white rounded-full w-36 h-36 md:w-44 md:h-44 flex flex-col items-center justify-center gap-2 text-base md:text-lg font-medium transition-all duration-300 shadow-xl cursor-pointer disabled:opacity-80 overflow-hidden"
+                    style={FONT_BODY}
+                  >
+                    {submitted ? (
+                      <div className="flex flex-col items-center justify-center gap-1.5 animate-in fade-in zoom-in duration-300">
+                        <Check className="w-7 h-7 md:w-9 md:h-9 text-white stroke-[2.5]" />
+                        <span className="font-semibold">Sent!</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center gap-1.5 transition-transform duration-300 group-hover:-translate-y-1">
+                        <Send className={`w-7 h-7 md:w-9 md:h-9 text-white transition-all duration-300 ${isSubmitting ? "translate-x-12 -translate-y-12 opacity-0" : "group-hover:translate-x-1.5 group-hover:-translate-y-1.5 group-hover:rotate-12"
+                          }`} />
+                        <span className="font-semibold">{isSubmitting ? "Sending..." : "Send"}</span>
+                      </div>
+                    )}
                   </button>
                 </MagneticButton>
               </div>
@@ -102,7 +138,7 @@ export default function ContactPage() {
               </span>
             ))}
           </div>
-          
+
           <div className="mt-20">
             <MagneticButton strength={0.3}>
               <a href="#contact" className="inline-flex items-center gap-4 px-12 py-6 md:px-14 md:py-8 rounded-full bg-teal-500 hover:bg-black text-white text-lg md:text-xl font-bold no-underline transition-colors duration-300" style={FONT_BODY}>
