@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -116,8 +116,8 @@ export default function Navbar() {
                   color: pathname === l.href ? TEAL_500 : linkColor,
                   textDecoration: "none", transition: "color 0.2s",
                 }}
-                onMouseEnter={e => (e.currentTarget.style.color = TEAL_500)}
-                onMouseLeave={e => (e.currentTarget.style.color = pathname === l.href ? TEAL_500 : linkColor)}
+                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = TEAL_500)}
+                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = pathname === l.href ? TEAL_500 : linkColor)}
               >
                 {l.label}
               </Link>
@@ -142,8 +142,8 @@ export default function Navbar() {
                 padding: "8px 16px",
                 marginLeft: "-16px"
               }}
-              onMouseEnter={e => (e.currentTarget.style.color = TEAL_500)}
-              onMouseLeave={e => (e.currentTarget.style.color = linkColor)}>
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.color = TEAL_500)}
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.color = linkColor)}>
               MORE
               <motion.svg 
                 animate={{ rotate: moreOpen ? 180 : 0 }}
@@ -192,8 +192,8 @@ export default function Navbar() {
                             textDecoration: "none", 
                             transition: "color 0.15s" 
                           }}
-                          onMouseEnter={e => (e.currentTarget.style.color = TEAL_500)}
-                          onMouseLeave={e => (e.currentTarget.style.color = "#000000")}
+                          onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = TEAL_500)}
+                          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = "#000000")}
                         >
                           {l.label}
                         </Link>
