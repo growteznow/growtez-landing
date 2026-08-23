@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Star, ArrowRight, CircleCheck } from "lucide-react";
+import Link from "next/link";
 import ParallaxImage from "@/components/ParallaxImage";
 import MagneticButton from "@/components/MagneticButton";
 import {
@@ -111,8 +112,9 @@ export function TestimonialCard({ quote, name, role, stars, index }: { quote: st
   );
 }
 
-export function PortfolioCard({ src, title, category, year, index }: { src: string; title: string; category: string; year: string; index: number }) {
+export function PortfolioCard({ src, title, category, year, slug, index }: { src: string; title: string; category: string; year: string; slug?: string; index: number }) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!cardRef.current) return;
     const fromLeft = index % 2 === 0;
@@ -123,9 +125,10 @@ export function PortfolioCard({ src, title, category, year, index }: { src: stri
     });
     return () => { anim.kill(); };
   }, [index]);
-  return (
+
+  const content = (
     <div ref={cardRef}>
-      <div style={{ borderRadius: 16, overflow: "hidden", position: "relative" }}>
+      <div ref={imgRef} style={{ borderRadius: 16, overflow: "hidden", position: "relative", transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)" }}>
         <ParallaxImage src={src} alt={title} className="h-[320px] w-full" intensity={18} />
       </div>
       <div style={{ marginTop: 20, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
@@ -136,6 +139,19 @@ export function PortfolioCard({ src, title, category, year, index }: { src: stri
         <span style={{ fontSize: "0.875rem", color: SLATE_500 }}>{year}</span>
       </div>
     </div>
+  );
+
+  if (!slug) return content;
+
+  return (
+    <Link
+      href={`/portfolio/${slug}`}
+      style={{ textDecoration: "none", color: "inherit", display: "block" }}
+      onMouseEnter={() => { if (imgRef.current) imgRef.current.style.transform = "scale(1.03)"; }}
+      onMouseLeave={() => { if (imgRef.current) imgRef.current.style.transform = "scale(1)"; }}
+    >
+      {content}
+    </Link>
   );
 }
 
