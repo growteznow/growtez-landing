@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
@@ -10,7 +10,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import RevealText from "@/components/RevealText";
 import MagneticButton from "@/components/MagneticButton";
-import { FONT_DISPLAY, FONT_BODY, TEAL_400, TEAL_500, SLATE_400, SLATE_500, PAGE_BG } from "@/lib/constants";
+import { FONT_DISPLAY, FONT_BODY, TEAL_400, TEAL_500, SLATE_400, SLATE_500 } from "@/lib/constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -77,9 +77,9 @@ function BlogCard({ post, index }: { post: BlogPost; index: number }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        borderRadius: 24, overflow: "hidden", background: "#ffffff",
-        border: hovered ? `1px solid ${color}40` : "1px solid rgba(0,0,0,0.08)",
-        boxShadow: hovered ? `0 24px 48px -12px ${color}25` : "0 1px 3px rgba(0,0,0,0.05)",
+        borderRadius: 24, overflow: "hidden", background: "#0f172a",
+        border: hovered ? `1px solid ${color}80` : "1px solid rgba(255,255,255,0.1)",
+        boxShadow: hovered ? `0 24px 48px -12px ${color}35` : "0 4px 20px rgba(0,0,0,0.4)",
         transition: "border-color 0.3s, box-shadow 0.3s, transform 0.35s cubic-bezier(0.16,1,0.3,1)",
         transform: hovered ? "translateY(-6px)" : "translateY(0)",
         display: "flex", flexDirection: "column",
@@ -121,27 +121,27 @@ function BlogCard({ post, index }: { post: BlogPost; index: number }) {
       <div style={{ padding: "1.4rem", flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           {post.readingTime && (
-            <span style={{ fontSize: "0.75rem", color: SLATE_400, display: "flex", alignItems: "center", gap: 4, ...FONT_BODY }}>
+            <span style={{ fontSize: "0.75rem", color: "#94a3b8", display: "flex", alignItems: "center", gap: 4, ...FONT_BODY }}>
               <Clock size={11} />{post.readingTime}
             </span>
           )}
           {post.publishedAt && (
-            <span style={{ fontSize: "0.75rem", color: SLATE_400, ...FONT_BODY }}>· {formatDate(post.publishedAt)}</span>
+            <span style={{ fontSize: "0.75rem", color: "#94a3b8", ...FONT_BODY }}>· {formatDate(post.publishedAt)}</span>
           )}
         </div>
 
-        <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#0f172a", lineHeight: 1.45, margin: 0, ...FONT_DISPLAY }}>
+        <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#ffffff", lineHeight: 1.45, margin: 0, ...FONT_DISPLAY }}>
           {post.title}
         </h3>
 
         {post.excerpt && (
-          <p style={{ fontSize: "0.875rem", color: SLATE_500, lineHeight: 1.75, margin: 0, flex: 1,
+          <p style={{ fontSize: "0.875rem", color: "#cbd5e1", lineHeight: 1.75, margin: 0, flex: 1,
             display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", ...FONT_BODY }}>
             {post.excerpt}
           </p>
         )}
 
-        <div style={{ paddingTop: 14, borderTop: "1px solid rgba(0,0,0,0.06)", display: "flex", justifyContent: "flex-end" }}>
+        <div style={{ paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "flex-end" }}>
           <Link href={`/blog/${post.id}`} style={{
             display: "inline-flex", alignItems: "center", gap: 4, fontSize: "0.82rem",
             fontWeight: 600, color: color, textDecoration: "none", ...FONT_BODY,
@@ -172,11 +172,11 @@ function FeaturedCard({ post }: { post: BlogPost }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        borderRadius: 28, overflow: "hidden", background: "#000",
+        borderRadius: 28, overflow: "hidden", background: "#0f172a",
         position: "relative", minHeight: 380,
         display: "flex", flexDirection: "column", justifyContent: "flex-end",
-        border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: hovered ? "0 32px 80px -16px rgba(0,0,0,0.5)" : "0 20px 60px -20px rgba(0,0,0,0.35)",
+        border: "1px solid rgba(255,255,255,0.1)",
+        boxShadow: hovered ? "0 32px 80px -16px rgba(0,0,0,0.6)" : "0 20px 60px -20px rgba(0,0,0,0.4)",
         transition: "box-shadow 0.35s",
       }}
     >
@@ -291,16 +291,16 @@ export default function BlogPage() {
   const filtered = activeCategory === "All" ? rest : rest.filter((p) => p.category === activeCategory);
 
   return (
-    <main style={{ paddingTop: 100, background: PAGE_BG }}>
+    <main className="text-white" style={{ paddingTop: 100, background: "#000000", minHeight: "100vh" }}>
       {/* ── HEADER ── */}
-      <section style={{ padding: "2rem 40px 3rem", background: PAGE_BG, textAlign: "center" }}>
+      <section style={{ padding: "2rem 40px 3rem", background: "#000000", textAlign: "center" }}>
         <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <h1 style={{ marginTop: 24, lineHeight: 1.1 }}>
-            <RevealText as="block" className="text-5xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000" }}>Insights &amp;</RevealText>
-            <RevealText as="block" delay={0.1} className="text-5xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: TEAL_500 }}>Ideas.</RevealText>
+            <RevealText as="block" className="text-5xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#ffffff" }}>Insights &amp;</RevealText>
+            <RevealText as="block" delay={0.1} className="text-5xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: TEAL_400 }}>Ideas.</RevealText>
           </h1>
           <RevealText as="block" delay={0.2}>
-            <p style={{ marginTop: 32, fontSize: "1.2rem", color: SLATE_500, maxWidth: 680, lineHeight: 1.8, ...FONT_BODY }}>
+            <p style={{ marginTop: 32, fontSize: "1.2rem", color: "#cbd5e1", maxWidth: 680, lineHeight: 1.8, ...FONT_BODY }}>
               Insights, tips, and deep-dives into web development, design, AI, and digital marketing from the Growtez team.
             </p>
           </RevealText>
@@ -312,8 +312,8 @@ export default function BlogPage() {
 
         {/* Loading */}
         {loading && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "6rem 0", color: SLATE_400, ...FONT_BODY }}>
-            <Loader2 size={36} style={{ animation: "spin 1s linear infinite", color: TEAL_500 }} />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "6rem 0", color: "#94a3b8", ...FONT_BODY }}>
+            <Loader2 size={36} style={{ animation: "spin 1s linear infinite", color: TEAL_400 }} />
             <p style={{ fontSize: "1rem" }}>Loading articles…</p>
             <style>{`@keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }`}</style>
           </div>
@@ -321,19 +321,19 @@ export default function BlogPage() {
 
         {/* Error */}
         {!loading && error && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "6rem 0", textAlign: "center", color: SLATE_500, ...FONT_BODY }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "6rem 0", textAlign: "center", color: "#cbd5e1", ...FONT_BODY }}>
             <AlertTriangle size={40} style={{ color: "#ef4444" }} />
-            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#0f172a", ...FONT_DISPLAY }}>Unable to load blog posts</h3>
-            <p style={{ maxWidth: 400, lineHeight: 1.7, fontSize: "0.9rem" }}>{error}</p>
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#ffffff", ...FONT_DISPLAY }}>Unable to load blog posts</h3>
+            <p style={{ maxWidth: 400, lineHeight: 1.7, fontSize: "0.9rem", color: "#94a3b8" }}>{error}</p>
           </div>
         )}
 
         {/* Empty */}
         {!loading && !error && posts.length === 0 && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "6rem 0", textAlign: "center", color: SLATE_500, ...FONT_BODY }}>
-            <Newspaper size={48} style={{ color: SLATE_400 }} />
-            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#0f172a", ...FONT_DISPLAY }}>No posts yet</h3>
-            <p style={{ fontSize: "0.9rem" }}>We are working on some great content. Check back soon!</p>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "6rem 0", textAlign: "center", color: "#cbd5e1", ...FONT_BODY }}>
+            <Newspaper size={48} style={{ color: "#64748b" }} />
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#ffffff", ...FONT_DISPLAY }}>No posts yet</h3>
+            <p style={{ fontSize: "0.9rem", color: "#94a3b8" }}>We are working on some great content. Check back soon!</p>
           </div>
         )}
 
@@ -350,20 +350,20 @@ export default function BlogPage() {
             {/* Category filter */}
             {categories.length > 1 && (
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: "2.5rem",
-                padding: "0.4rem", background: "#f8fafc", borderRadius: 14,
-                border: "1px solid rgba(0,0,0,0.06)", width: "fit-content" }}>
+                padding: "0.4rem", background: "rgba(255,255,255,0.05)", borderRadius: 14,
+                border: "1px solid rgba(255,255,255,0.1)", width: "fit-content" }}>
                 {categories.map((cat) => {
                   const isActive = activeCategory === cat;
                   return (
                     <button key={cat} onClick={() => setActiveCategory(cat)} style={{
                       padding: "7px 18px", borderRadius: 10, border: "none",
-                      background: isActive ? "#000" : "transparent",
-                      color: isActive ? "#fff" : SLATE_500,
+                      background: isActive ? "#ffffff" : "transparent",
+                      color: isActive ? "#000000" : "#94a3b8",
                       fontSize: "0.85rem", fontWeight: 600, cursor: "pointer",
                       transition: "all 0.22s cubic-bezier(0.16,1,0.3,1)",
-                      boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.14)" : "none", ...FONT_BODY,
+                      boxShadow: isActive ? "0 4px 12px rgba(255,255,255,0.14)" : "none", ...FONT_BODY,
                     }}
-                      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "rgba(0,0,0,0.04)"; }}
+                      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.08)"; }}
                       onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
                     >
                       {cat}
@@ -385,16 +385,22 @@ export default function BlogPage() {
                 {filtered.length > 0 ? (
                   filtered.map((p, i) => <BlogCard key={p.id} post={p} index={i} />)
                 ) : (
-                  <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "4rem 2rem", color: SLATE_400, ...FONT_BODY }}>
+                  <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "4rem 2rem", color: "#94a3b8", ...FONT_BODY }}>
                     <p style={{ fontSize: "2.5rem", marginBottom: 12 }}>📭</p>
-                    <p style={{ fontWeight: 600, color: SLATE_500 }}>No posts in this category yet.</p>
+                    <p style={{ fontWeight: 600, color: "#cbd5e1" }}>No posts in this category yet.</p>
                     <button onClick={() => setActiveCategory("All")} style={{
                       marginTop: 20, padding: "9px 24px", borderRadius: 9999,
-                      border: "1px solid rgba(0,0,0,0.1)", background: "transparent",
-                      color: "#000", fontWeight: 600, cursor: "pointer", transition: "background 0.2s", ...FONT_BODY,
+                      border: "1px solid rgba(255,255,255,0.15)", background: "transparent",
+                      color: "#ffffff", fontWeight: 600, cursor: "pointer", transition: "background 0.2s, border-color 0.2s", ...FONT_BODY,
                     }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "#f1f5f9")}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "transparent";
+                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)";
+                      }}
                     >View all posts</button>
                   </div>
                 )}

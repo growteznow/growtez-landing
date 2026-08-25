@@ -7,6 +7,7 @@ import { Star, ArrowRight, CircleCheck, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import ParallaxImage from "@/components/ParallaxImage";
 import MagneticButton from "@/components/MagneticButton";
+import TiltCard from "@/components/TiltCard";
 import {
   FONT_DISPLAY, FONT_BODY, CARD_BG, TEAL_400, TEAL_500, SLATE_400, SLATE_500
 } from "@/lib/constants";
@@ -127,34 +128,32 @@ export function PortfolioCard({ src, title, category, year, url, slug, index, da
   }, [index]);
 
   const inner = (
-    <div className="portfolio-item group bg-[#0A3B3B] border border-[#115E5E] p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#0A3B3B]/40" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-      <div style={{ borderRadius: 16, overflow: "hidden", position: "relative" }}>
-        <ParallaxImage src={src} alt={title} className="h-[280px] md:h-[320px] w-full" intensity={18} />
-      </div>
-      <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-        <div>
-          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#5eead4", marginBottom: 6, ...FONT_BODY }}>{category}</p>
-          <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#ffffff", ...FONT_DISPLAY }}>{title}</h3>
+    <div className="portfolio-item" style={{ display: "block", textDecoration: "none", color: "inherit", height: "100%" }}>
+      <TiltCard className="group flex flex-col bg-[#0A3B3B] border border-[#115E5E] rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[#0A3B3B]/40 h-full">
+        <div style={{ position: "relative" }}>
+          <ParallaxImage src={src} alt={title} className="h-[280px] md:h-[320px] w-full" intensity={18} />
         </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-          <span style={{ fontSize: "0.875rem", color: "#94a3b8" }}>{year}</span>
-          {(url || slug) && (
-            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#5eead4", ...FONT_BODY, display: "flex", alignItems: "center", gap: 4 }}>
-              {url ? "Visit" : "View"} <ArrowUpRight size={14} />
-            </span>
-          )}
+        <div style={{ padding: "1.5rem", flexGrow: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#5eead4", marginBottom: 6, ...FONT_BODY }}>{category}</p>
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#ffffff", ...FONT_DISPLAY }}>{title}</h3>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+            <span style={{ fontSize: "0.875rem", color: "#94a3b8" }}>{year}</span>
+            {url && (
+              <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#5eead4", ...FONT_BODY, display: "flex", alignItems: "center", gap: 4 }}>
+                Visit <ArrowUpRight size={14} />
+              </span>
+            )}
+          </div>
         </div>
-      </div>
+      </TiltCard>
     </div>
   );
 
   return (
     <div ref={cardRef}>
-      {slug ? (
-        <Link href={`/portfolio/${slug}`} style={{ textDecoration: "none", display: "block" }}>
-          {inner}
-        </Link>
-      ) : url ? (
+      {url ? (
         <a href={url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "block" }}>
           {inner}
         </a>

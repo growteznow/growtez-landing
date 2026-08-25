@@ -3,7 +3,7 @@
 import { use, useEffect, useRef } from "react";
 import Link from "next/link";
 // @ts-expect-error: notFound might not be typed for client components but exists at runtime
-import { notFound } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
@@ -37,7 +37,8 @@ export default function PortfolioDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = use(params);
+  const { slug: rawSlug } = use(params);
+  const slug = decodeURIComponent(rawSlug);
 
   const project = (portfolio as PortfolioItem[]).find((p) => p.slug === slug);
   if (!project) {

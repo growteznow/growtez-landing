@@ -11,8 +11,10 @@ import { FONT_DISPLAY, FONT_BODY, TEAL_400, TEAL_500 } from "@/lib/constants";
 import { portfolio, communityTestimonials } from "@/lib/data";
 import InteractiveBackground from "@/components/InteractiveBackground";
 import MouseGlow from "@/components/MouseGlow";
+import ParallaxImage from "@/components/ParallaxImage";
 import { PortfolioCard } from "@/components/UI";
 import MagneticButton from "@/components/MagneticButton";
+import TiltCard from "@/components/TiltCard";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -291,31 +293,33 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-10 md:mt-12">
               {serviceCards.map((service: any, i) => (
-                <div key={i} className="service-card group flex flex-col bg-[#0F8A8A] border border-[#0B6666] rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#0F8A8A]/30 hover:-translate-y-1">
-                  <div className="w-full aspect-[4/3] overflow-hidden bg-[#0A5C5C]">
-                    <img
+                <div key={i} className="service-card">
+                  <TiltCard className="group flex flex-col h-full bg-[#0F8A8A] border border-[#0B6666] rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#0F8A8A]/30">
+                    <ParallaxImage
                       src={service.image}
                       alt={service.alt}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      className="w-full aspect-[4/3] bg-[#0A5C5C]"
+                      imageClassName="transition-transform duration-700 ease-out group-hover:scale-105"
+                      intensity={20}
                     />
-                  </div>
-                  <div className="p-8 md:p-10 flex flex-col flex-grow">
-                    <h3 className="text-2xl md:text-3xl text-white mb-4" style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif", fontWeight: 300, letterSpacing: "-0.02em" }}>
-                      {service.title}
-                    </h3>
-                    <p className="text-teal-50 text-sm md:text-base leading-relaxed" style={FONT_BODY}>
-                      {service.desc}
-                    </p>
-                    {service.features && (
-                      <ul className="flex flex-col gap-2 mt-6">
-                        {service.features.map((feature: string, idx: number) => (
-                          <li key={idx} className="text-sm text-teal-100 flex items-center gap-2" style={FONT_BODY}>
-                            <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0"></span> {feature}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
+                    <div className="p-8 md:p-10 flex flex-col flex-grow">
+                      <h3 className="text-2xl md:text-3xl text-white mb-4" style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif", fontWeight: 300, letterSpacing: "-0.02em" }}>
+                        {service.title}
+                      </h3>
+                      <p className="text-teal-50 text-sm md:text-base leading-relaxed" style={FONT_BODY}>
+                        {service.desc}
+                      </p>
+                      {service.features && (
+                        <ul className="flex flex-col gap-2 mt-6">
+                          {service.features.map((feature: string, idx: number) => (
+                            <li key={idx} className="text-sm text-teal-100 flex items-center gap-2" style={FONT_BODY}>
+                              <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0"></span> {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </TiltCard>
                 </div>
               ))}
             </div>
@@ -458,9 +462,9 @@ export default function Home() {
                   padding: "16px 32px", borderRadius: 9999,
                   border: `1px solid ${TEAL_500}`, background: TEAL_500,
                   color: "#ffffff", fontSize: "1rem", fontWeight: 600,
-                  textDecoration: "none", transition: "background 0.2s, border-color 0.2s, color 0.2s", ...FONT_BODY,
+                  textDecoration: "none", transition: "all 0.3s ease", ...FONT_BODY,
                 }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = "#000000"; e.currentTarget.style.borderColor = "#000000"; e.currentTarget.style.color = "#ffffff"; }}
+                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#ffffff"; e.currentTarget.style.color = "#000000"; }}
                   onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = TEAL_500; e.currentTarget.style.borderColor = TEAL_500; e.currentTarget.style.color = "#ffffff"; }}>
                   View All Projects <ArrowRight size={20} />
                 </Link>
@@ -478,8 +482,8 @@ export default function Home() {
                 Ready to transform <br /> <span className="text-teal-500">your business?</span>
               </h2>
               <MagneticButton>
-                <Link href="/contact" className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 bg-teal-500 text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl" style={FONT_BODY}>
-                  <div className="absolute inset-0 bg-black translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"></div>
+                <Link href="/contact" className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 bg-teal-500 text-white hover:text-black rounded-full overflow-hidden transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl" style={FONT_BODY}>
+                  <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"></div>
                   <span className="relative z-10 text-lg font-bold">Start a Project</span>
                   <Rocket size={20} className="relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
                 </Link>

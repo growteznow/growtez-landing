@@ -10,6 +10,7 @@ interface ParallaxImageProps {
   src: string;
   alt: string;
   className?: string;
+  imageClassName?: string;
   /** How far the image drifts, as a yPercent value. Default 20 */
   intensity?: number;
 }
@@ -18,6 +19,7 @@ export default function ParallaxImage({
   src,
   alt,
   className = "",
+  imageClassName = "",
   intensity = 20,
 }: ParallaxImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,13 +51,13 @@ export default function ParallaxImage({
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden rounded-2xl bg-slate-900 ${className}`}
+      className={`relative overflow-hidden bg-slate-900 ${className}`}
     >
       <img
         ref={imageRef}
         src={src}
         alt={alt}
-        className="absolute inset-0 h-[120%] w-full object-cover"
+        className={`absolute inset-0 h-[120%] w-full object-cover ${imageClassName}`}
       />
     </div>
   );
