@@ -14,7 +14,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const [scrolled, setScrolled] = useState(typeof window !== "undefined" && window.scrollY > 50);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
   // On homepage: transparent at top. Other pages: white
@@ -38,7 +38,10 @@ export default function Navbar() {
     let lastScrollY = window.scrollY;
     const threshold = 1; // px of scroll needed to trigger hide/show
 
-    // The initial scrolled state is already handled appropriately.
+    // Initialize state asynchronously to avoid hydration mismatch and sync setState lint errors
+    setTimeout(() => {
+      setScrolled(window.scrollY > 50);
+    }, 0);
 
     const handleScroll = () => {
       const currentY = window.scrollY;

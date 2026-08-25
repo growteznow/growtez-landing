@@ -49,19 +49,7 @@ const serviceCards = [
   },
 ];
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{
-      display: "inline-flex", alignItems: "center", gap: 6,
-      padding: "5px 14px", borderRadius: 9999,
-      border: "1px solid rgba(20,184,166,0.3)",
-      background: "rgba(20,184,166,0.07)",
-      color: TEAL_500, fontSize: 10, fontWeight: 700,
-      letterSpacing: "0.2em", textTransform: "uppercase",
-      marginBottom: 20, ...FONT_BODY,
-    }}>{children}</div>
-  );
-}
+
 
 let isInitialLoad = false;
 
@@ -177,7 +165,7 @@ export default function Home() {
   useEffect(() => {
     if (isLoading) return;
     const ctx = gsap.context(() => {
-      const elements = document.querySelectorAll(".community-quote, .portfolio-item, .service-card");
+      const elements = document.querySelectorAll(".community-quote, .portfolio-item");
       elements.forEach((el) => {
         gsap.fromTo(el,
           { y: 80, opacity: 0 },
@@ -190,6 +178,22 @@ export default function Home() {
           }
         );
       });
+
+      // Staggered grid animation for service cards
+      const serviceCardsEl = document.querySelectorAll(".service-card");
+      if (serviceCardsEl.length > 0) {
+        gsap.fromTo(serviceCardsEl,
+          { y: 60, opacity: 0, scale: 0.95 },
+          {
+            y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "power3.out",
+            stagger: 0.15,
+            scrollTrigger: {
+              trigger: serviceCardsEl[0].parentElement,
+              start: "top 85%",
+            }
+          }
+        );
+      }
     });
     return () => ctx.revert();
   }, [isLoading]);
@@ -325,14 +329,11 @@ export default function Home() {
 
               {/* Left Column (Sticky on desktop) */}
               <div ref={strategyLeftRef} className="w-full lg:w-5/12 shrink-0 relative z-20 lg:sticky lg:top-40 h-fit">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em]" style={FONT_BODY}>
-                  OUR STRATEGY
-                </div>
                 <h2
                   className="text-[2.5rem] md:text-[3.5rem] lg:text-[4.5rem] leading-[1.05] font-normal tracking-tight mt-6"
                   style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
                 >
-                  3 steps
+                  Our Strategy
                 </h2>
                 <p className="mt-8 text-lg md:text-xl text-gray-400 max-w-md leading-relaxed" style={FONT_BODY}>
                   Our proven methodology ensures consistent quality and exceptional results for every client we serve.
@@ -387,14 +388,11 @@ export default function Home() {
           <div className="max-w-[1200px] mx-auto w-full px-6 md:px-12">
             <div className="flex flex-col md:flex-row gap-8 md:gap-16 mb-12 md:mb-20">
               <div className="w-full md:w-5/12">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em]" style={FONT_BODY}>
-                  OUR COMMUNITY
-                </div>
                 <h2
-                  className="text-[2rem] md:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-normal tracking-tight mt-4"
+                  className="text-[2.5rem] md:text-[3.5rem] lg:text-[4.5rem] leading-[1.05] font-normal tracking-tight mt-4"
                   style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
                 >
-                  See what customers<br /> are saying about us.
+                  Our Community
                 </h2>
               </div>
               <div className="w-full md:w-5/12 md:ml-auto flex items-end pb-2">
@@ -438,14 +436,11 @@ export default function Home() {
           <div style={{ maxWidth: 1050, margin: "0 auto", width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 44, flexWrap: "wrap", gap: 16 }}>
               <div>
-                <SectionLabel>Selected Work</SectionLabel>
-                <h2 style={{
-                  margin: 0, color: "#ffffff",
-                  fontSize: "clamp(2.2rem, 4vw, 3.8rem)",
-                  fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1.05, ...FONT_DISPLAY,
-                }}>
-                  Projects that speak<br />
-                  <span style={{ color: TEAL_500 }}>for themselves.</span>
+                <h2
+                  className="text-[2.5rem] md:text-[3.5rem] lg:text-[4.5rem] leading-[1.05] font-normal tracking-tight text-white"
+                  style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
+                >
+                  Selected Work
                 </h2>
               </div>
             </div>
@@ -461,12 +456,12 @@ export default function Home() {
                 <Link href="/portfolio" style={{
                   display: "inline-flex", alignItems: "center", gap: 8,
                   padding: "16px 32px", borderRadius: 9999,
-                  border: "1px solid rgba(255,255,255,0.2)",
+                  border: `1px solid ${TEAL_500}`, background: TEAL_500,
                   color: "#ffffff", fontSize: "1rem", fontWeight: 600,
                   textDecoration: "none", transition: "background 0.2s, border-color 0.2s, color 0.2s", ...FONT_BODY,
                 }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = TEAL_500; e.currentTarget.style.borderColor = TEAL_500; e.currentTarget.style.color = "#fff"; }}
-                  onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "#ffffff"; }}>
+                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = "#000000"; e.currentTarget.style.borderColor = "#000000"; e.currentTarget.style.color = "#ffffff"; }}
+                  onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = TEAL_500; e.currentTarget.style.borderColor = TEAL_500; e.currentTarget.style.color = "#ffffff"; }}>
                   View All Projects <ArrowRight size={20} />
                 </Link>
               </MagneticButton>
@@ -476,10 +471,10 @@ export default function Home() {
         </section>
 
         {/* ── CTA FOOTER ── */}
-        <section className="relative w-full bg-transparent flex items-center py-20 px-6 md:py-32 md:px-12">
+        <section className="relative w-full bg-black flex items-center py-20 px-6 md:py-32 md:px-12">
           <div className="max-w-[1200px] mx-auto w-full">
-            <div className="border-t border-black/10 pt-16 md:pt-24 flex justify-between items-center flex-wrap gap-8">
-              <h2 className="text-[2.5rem] md:text-[4rem] tracking-tight leading-none text-black" style={FONT_DISPLAY}>
+            <div className="border-t border-white/10 pt-16 md:pt-24 flex justify-between items-center flex-wrap gap-8">
+              <h2 className="text-[2.5rem] md:text-[4rem] tracking-tight leading-none text-white" style={FONT_DISPLAY}>
                 Ready to transform <br /> <span className="text-teal-500">your business?</span>
               </h2>
               <MagneticButton>
