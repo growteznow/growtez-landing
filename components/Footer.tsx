@@ -41,7 +41,7 @@ export default function Footer({ forceRender = false }: { forceRender?: boolean 
             <div key={col.heading}>
               <h4 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#cbd5e1", marginBottom: 20, ...FONT_BODY }}>{col.heading}</h4>
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
-                {col.links.map(l => (
+                {col.links.map((l: { label: string; href?: string }) => (
                   <li key={l.label}>
                     {l.href ? (
                       <Link href={l.href} style={{ fontSize: "0.875rem", color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }}

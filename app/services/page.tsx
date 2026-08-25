@@ -1,11 +1,15 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
-import { FONT_DISPLAY, SECTION_BG, PAGE_BG, SLATE_500 } from "@/lib/constants";
-import { services, process } from "@/lib/data";
-import { Pill } from "@/components/UI";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { FONT_DISPLAY, FONT_BODY } from "@/lib/constants";
+import { services } from "@/lib/data";
+
 import RevealText from "@/components/RevealText";
+
+gsap.registerPlugin(ScrollTrigger);
 
 function AnimatedServiceCard({ service, index }: { service: any, index: number }) {
   const ref = useRef(null);
@@ -17,9 +21,9 @@ function AnimatedServiceCard({ service, index }: { service: any, index: number }
   });
 
   // Interpolate colors tick-by-tick as the user scrolls
-  const backgroundColor = useTransform(scrollYProgress, [0, 1], ["#f1f5f9", "#0f766e"]); // Slate-100 to Dark Teal
-  const color = useTransform(scrollYProgress, [0, 0.5, 1], ["#0f172a", "#0f172a", "#ffffff"]);
-  const secondaryColor = useTransform(scrollYProgress, [0, 0.5, 1], ["#64748b", "#64748b", "rgba(255, 255, 255, 0.75)"]);
+  const backgroundColor = useTransform(scrollYProgress, [0, 1], ["#1e293b", "#0f766e"]); // Slate-800 to Dark Teal
+  const color = useTransform(scrollYProgress, [0, 0.5, 1], ["#f8fafc", "#f8fafc", "#ffffff"]);
+  const secondaryColor = useTransform(scrollYProgress, [0, 0.5, 1], ["#94a3b8", "#94a3b8", "rgba(255, 255, 255, 0.75)"]);
   
   // Interpolate the grid height so it unrolls smoothly with the scroll
   const gridRows = useTransform(scrollYProgress, [0, 1], ["0fr", "1fr"]);
@@ -73,18 +77,58 @@ function AnimatedServiceCard({ service, index }: { service: any, index: number }
 }
 
 export default function ServicesPage() {
+  const strategySectionRef = useRef<HTMLElement>(null);
+  const strategyLeftRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const section = strategySectionRef.current;
+    const leftCol = strategyLeftRef.current;
+    if (!section || !leftCol) return;
+
+    const stepColors = ["#1e1b4b", "#3b1c32", "#0f3d3e"];
+
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      mm.add({
+        isDesktop: "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        isMobile: "(max-width: 1023px) and (prefers-reduced-motion: no-preference)"
+      }, (context) => {
+        const { isDesktop, isMobile } = context.conditions as any;
+        const steps = section.querySelectorAll(".strategy-step");
+
+        steps.forEach((step, i) => {
+          ScrollTrigger.create({
+            trigger: step,
+            start: isDesktop ? "top 10%" : "top 50%",
+            end: isDesktop ? "bottom 10%" : "bottom 50%",
+            onEnter: () => gsap.to(section, { backgroundColor: stepColors[i], duration: 0.8, overwrite: "auto" }),
+            onEnterBack: () => gsap.to(section, { backgroundColor: stepColors[i], duration: 0.8, overwrite: "auto" }),
+            onLeaveBack: () => {
+              if (i === 0) gsap.to(section, { backgroundColor: "#000000", duration: 0.8, overwrite: "auto" });
+            }
+          });
+        });
+      });
+
+      return () => mm.revert();
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <main style={{ paddingTop: 100, background: PAGE_BG }}>
+    <main className="bg-black min-h-screen text-slate-50" style={{ paddingTop: 100 }}>
       {/* ── HEADER ── */}
       <section style={{ padding: "2rem 40px 3rem", textAlign: "center" }}>
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
 
           <h1 style={{ marginTop: 24 }}>
-            <RevealText as="block" className="text-6xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>Services built</RevealText>
-            <RevealText as="block" delay={0.1} className="text-6xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>for growth.</RevealText>
+            <RevealText as="block" className="text-6xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#f8fafc" }}>Services built</RevealText>
+            <RevealText as="block" delay={0.1} className="text-6xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#f8fafc" }}>for growth.</RevealText>
           </h1>
           <RevealText as="block" delay={0.2}>
-            <p style={{ marginTop: 32, fontSize: "1.2rem", color: SLATE_500, lineHeight: 1.8 }}>
+            <p style={{ marginTop: 32, fontSize: "1.2rem", color: "#94a3b8", lineHeight: 1.8 }}>
               We provide end-to-end digital solutions that help ambitious companies scale, from native mobile applications to comprehensive brand identities.
             </p>
           </RevealText>
@@ -101,24 +145,65 @@ export default function ServicesPage() {
       </section>
 
       {/* ── PROCESS ── */}
-      <section className="rounded-t-[3rem] md:rounded-t-[5rem]" style={{ padding: "8rem 40px", background: SECTION_BG }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ marginBottom: 64 }}>
+      <div className="w-full block">
+        <section ref={strategySectionRef} className="rounded-t-[3rem] md:rounded-t-[5rem] relative w-full bg-black text-white py-24 lg:py-40 z-10 shadow-2xl flex flex-col transition-colors duration-500">
+          <div className="max-w-[1200px] mx-auto w-full px-6 md:px-12 flex flex-col lg:flex-row relative items-start gap-16 lg:gap-24">
+            
+            {/* Left Column (Sticky on desktop) */}
+            <div ref={strategyLeftRef} className="w-full lg:w-5/12 shrink-0 relative z-20 lg:sticky lg:top-40 h-fit">
+              <h2
+                className="text-[2.5rem] md:text-[3.5rem] lg:text-[4.5rem] leading-[1.05] font-normal tracking-tight mt-6"
+                style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
+              >
+                Our process is<br />built for results.
+              </h2>
+              <p className="mt-8 text-lg md:text-xl text-gray-400 max-w-md leading-relaxed" style={FONT_BODY}>
+                Our proven methodology ensures consistent quality and exceptional results for every client we serve.
+              </p>
+            </div>
 
-            <RevealText as="block" className="text-5xl md:text-[70px] font-medium leading-[0.95] tracking-tighter mt-6" style={{ ...FONT_DISPLAY, color: "#000000" }}>Our process is</RevealText>
-            <RevealText as="block" delay={0.1} className="text-5xl md:text-[70px] font-medium leading-[0.95] tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>built for results.</RevealText>
+            {/* Right Column (Vertical List) */}
+            <div className="w-full lg:w-7/12 flex flex-col pt-8 lg:pt-0 relative z-10">
+              {[
+                {
+                  num: "01",
+                  title: "Discover & Plan",
+                  desc: "We understand your vision, analyze requirements, and craft a clear roadmap.",
+                },
+                {
+                  num: "02",
+                  title: "Design & Build",
+                  desc: "We create intuitive designs and develop robust, scalable solutions tailored to your needs.",
+                },
+                {
+                  num: "03",
+                  title: "Launch & Grow",
+                  desc: "We deploy, optimize, and provide continuous support to ensure long-term success.",
+                },
+              ].map((step, i) => (
+                <div key={i} className="strategy-step group flex flex-col justify-start lg:justify-center items-start w-full py-12 lg:py-0 lg:min-h-[60vh] border-t border-white/20 transition-colors duration-500 hover:border-teal-500">
+                  <span
+                    className="text-[5rem] md:text-[7rem] lg:text-[9rem] leading-none font-light text-white/10 transition-colors duration-500 group-hover:text-teal-500"
+                    style={FONT_DISPLAY}
+                  >
+                    {step.num}
+                  </span>
+                  <h3
+                    className="text-[2.2rem] md:text-[3rem] text-white mt-6 font-normal tracking-tight"
+                    style={{ fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif" }}
+                  >
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-400 text-lg md:text-xl mt-4 max-w-lg leading-relaxed" style={FONT_BODY}>
+                    {step.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: 40 }}>
-            {process.map((s, i) => (
-              <div key={i} style={{ borderTop: "2px solid rgba(0,0,0,0.05)", paddingTop: 32 }}>
-                <RevealText as="block" delay={i * 0.1}><span style={{ fontSize: "1.25rem", fontWeight: 700, color: "#14b8a6", ...FONT_DISPLAY }}>{s.num}</span></RevealText>
-                <RevealText as="block" delay={0.05}><h3 style={{ marginTop: 12, fontSize: "1.5rem", fontWeight: 700, color: "#000000", ...FONT_DISPLAY }}>{s.title}</h3></RevealText>
-                <RevealText as="block" delay={0.1}><p style={{ marginTop: 16, fontSize: "1rem", lineHeight: 1.6, color: SLATE_500 }}>{s.desc}</p></RevealText>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }

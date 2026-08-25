@@ -19,6 +19,7 @@ export interface PortfolioItem {
   category: string;     // e.g. "SaaS Product"
   year: string;         // e.g. "2024"
   url?: string;         // Optional link to the live project
+  slug?: string;        // Optional slug for the detail page
   order?: number;       // Optional display order (lower = first)
 }
 
@@ -36,6 +37,13 @@ export async function fetchPortfolio(): Promise<PortfolioItem[]> {
   const q = query(portfolioCol(), orderBy("order", "asc"));
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<PortfolioItem, "id">) }));
+}
+
+export async function fetchPortfolioItemBySlug(slug: string): Promise<PortfolioItem | null> {
+  const q = query(portfolioCol(), orderBy("order", "asc"));
+  const snap = await getDocs(q);
+  const items = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<PortfolioItem, "id">) }));
+  return items.find((p) => p.slug === slug) || null;
 }
 
 // ── Write (admin only — protected by Firestore rules) ────────────────────────

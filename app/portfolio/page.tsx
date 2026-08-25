@@ -11,20 +11,20 @@ export default function PortfolioPage() {
   const { items, loading, error } = usePortfolio();
 
   return (
-    <main style={{ paddingTop: 100 }}>
+    <main style={{ paddingTop: 100, background: "#000000", minHeight: "100vh" }}>
       {/* ── HEADER ── */}
-      <section style={{ padding: "2rem 40px 3rem", background: PAGE_BG, textAlign: "center" }}>
+      <section style={{ padding: "2rem 40px 3rem", textAlign: "center" }}>
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
 
           <h1 style={{ marginTop: 24 }}>
-            <RevealText as="block" className="text-6xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>Projects that</RevealText>
-            <RevealText as="block" delay={0.1} className="text-6xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000000" }}>speak for themselves.</RevealText>
+            <RevealText as="block" className="text-6xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#ffffff" }}>Projects that</RevealText>
+            <RevealText as="block" delay={0.1} className="text-6xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#ffffff" }}>speak for themselves.</RevealText>
           </h1>
         </div>
       </section>
 
       {/* ── PORTFOLIO GRID ── */}
-      <section style={{ padding: "4rem 40px 8rem", background: PAGE_BG }}>
+      <section style={{ padding: "4rem 40px 8rem" }}>
         <div style={{ maxWidth: 1050, margin: "0 auto" }}>
 
           {/* Loading state */}
