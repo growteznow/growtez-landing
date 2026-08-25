@@ -23,7 +23,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-2xl font-semibold text-slate-900 mb-4">1. Acceptance of Terms</h2>
             <p className="mb-4">
-              By accessing or using the services provided by Growtez ("we", "us", or "our"), you agree to be bound by these Terms of Service. If you do not agree, you may not access or use our services.
+              By accessing or using the services provided by Growtez (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), you agree to be bound by these Terms of Service. If you do not agree, you may not access or use our services.
             </p>
           </section>
 

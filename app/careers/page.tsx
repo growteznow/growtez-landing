@@ -1,15 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { FONT_DISPLAY, FONT_BODY, PAGE_BG, SECTION_BG, SLATE_500, TEAL_500 } from "@/lib/constants";
-import { Pill } from "@/components/UI";
+import { FONT_DISPLAY, FONT_BODY, TEAL_400, TEAL_500 } from "@/lib/constants";
 import RevealText from "@/components/RevealText";
 import {
   Briefcase, GraduationCap, MapPin, Award, Rocket, Users,
   Check, AlertCircle, Loader2, ChevronDown, UploadCloud,
-  FileText, X, Paperclip, Link as LinkIcon
+  FileText, X, Link as LinkIcon
 } from "lucide-react";
-import Link from "next/link";
 import MagneticButton from "@/components/MagneticButton";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -165,16 +163,16 @@ export default function CareersPage() {
   };
 
   return (
-    <main style={{ paddingTop: 100 }}>
+    <main className="text-white" style={{ paddingTop: 100, background: "#000000", minHeight: "100vh" }}>
       {/* ── HEADER ── */}
-      <section style={{ padding: "2rem 40px 3rem", background: PAGE_BG, textAlign: "center" }}>
+      <section style={{ padding: "2rem 40px 3rem", background: "#000000", textAlign: "center" }}>
         <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
 
           <h1 style={{ marginTop: 24, lineHeight: 1.1 }}>
-            <RevealText as="block" className="text-5xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#000" }}>Build your career</RevealText>
-            <RevealText as="block" delay={0.1} className="text-5xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: TEAL_500 }}>with growtez</RevealText>
+            <RevealText as="block" className="text-5xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: "#ffffff" }}>Build your career</RevealText>
+            <RevealText as="block" delay={0.1} className="text-5xl md:text-7xl font-semibold tracking-tighter" style={{ ...FONT_DISPLAY, color: TEAL_400 }}>with growtez</RevealText>
           </h1>
-          <p style={{ marginTop: 24, fontSize: "1.25rem", color: SLATE_500, maxWidth: 600, lineHeight: 1.6, ...FONT_BODY }}>
+          <p className="text-slate-300" style={{ marginTop: 24, fontSize: "1.25rem", maxWidth: 600, lineHeight: 1.6, ...FONT_BODY }}>
             Where innovation meets opportunity.
           </p>
 
@@ -182,28 +180,28 @@ export default function CareersPage() {
             <MagneticButton>
               <a
                 href="#internships"
-                className="flex items-center justify-center gap-3 px-8 py-4 bg-slate-100 border border-black/5 hover:border-teal-500 rounded-full transition-all duration-300 group"
+                className="flex items-center justify-center gap-3 px-8 py-4 bg-white/5 border border-white/10 hover:border-teal-400 rounded-full transition-all duration-300 group"
               >
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:text-teal-500 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shadow-sm text-white group-hover:text-teal-400 group-hover:bg-white/20 transition-colors">
                   <GraduationCap size={20} />
                 </div>
                 <div className="text-left">
-                  <div className="font-bold text-black text-sm" style={FONT_DISPLAY}>Join as Intern</div>
-                  <div className="text-xs text-slate-500" style={FONT_BODY}>Learn & grow with us</div>
+                  <div className="font-bold text-white text-sm" style={FONT_DISPLAY}>Join as Intern</div>
+                  <div className="text-xs text-slate-400" style={FONT_BODY}>Learn & grow with us</div>
                 </div>
               </a>
             </MagneticButton>
             <MagneticButton>
               <a
                 href="#jobs"
-                className="flex items-center justify-center gap-3 px-8 py-4 bg-slate-100 border border-black/5 hover:border-teal-500 rounded-full transition-all duration-300 group"
+                className="flex items-center justify-center gap-3 px-8 py-4 bg-white/5 border border-white/10 hover:border-teal-400 rounded-full transition-all duration-300 group"
               >
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:text-teal-500 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shadow-sm text-white group-hover:text-teal-400 group-hover:bg-white/20 transition-colors">
                   <Briefcase size={20} />
                 </div>
                 <div className="text-left">
-                  <div className="font-bold text-black text-sm" style={FONT_DISPLAY}>Job Openings</div>
-                  <div className="text-xs text-slate-500" style={FONT_BODY}>Full-time positions</div>
+                  <div className="font-bold text-white text-sm" style={FONT_DISPLAY}>Job Openings</div>
+                  <div className="text-xs text-slate-400" style={FONT_BODY}>Full-time positions</div>
                 </div>
               </a>
             </MagneticButton>
@@ -212,19 +210,19 @@ export default function CareersPage() {
       </section>
 
       {/* ── JOB OPENINGS ── */}
-      <section id="jobs" style={{ padding: "6rem 40px", background: SECTION_BG, scrollMarginTop: "100px" }}>
+      <section id="jobs" style={{ padding: "6rem 40px", background: "#000000", scrollMarginTop: "100px" }}>
         <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
 
-          <h2 className="text-4xl md:text-5xl font-bold mt-6 tracking-tight text-black" style={FONT_DISPLAY}>
+          <h2 className="text-4xl md:text-5xl font-bold mt-6 tracking-tight text-white" style={FONT_DISPLAY}>
             Full-time positions at growtez
           </h2>
 
-          <div className="mt-12 p-12 bg-white rounded-3xl border border-black/5 border-dashed flex flex-col items-center">
-            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+          <div className="mt-12 p-12 bg-white/5 rounded-3xl border border-white/10 border-dashed flex flex-col items-center">
+            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-6">
               <Briefcase size={24} className="text-slate-400" />
             </div>
-            <h3 className="text-2xl font-bold text-black mb-3" style={FONT_DISPLAY}>No Current Openings</h3>
-            <p className="text-slate-500" style={FONT_BODY}>
+            <h3 className="text-2xl font-bold text-white mb-3" style={FONT_DISPLAY}>No Current Openings</h3>
+            <p className="text-slate-300" style={FONT_BODY}>
               We don't have any full-time positions available right now.<br />
               Check back soon or follow us on social media for updates!
             </p>
@@ -233,55 +231,55 @@ export default function CareersPage() {
       </section>
 
       {/* ── INTERNSHIPS ── */}
-      <section id="internships" style={{ padding: "8rem 40px", background: PAGE_BG, scrollMarginTop: "100px" }}>
+      <section id="internships" style={{ padding: "8rem 40px", background: "#000000", scrollMarginTop: "100px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
           <div className="text-center mb-16">
 
-            <h2 className="text-4xl md:text-5xl font-bold mt-6 tracking-tight text-black" style={FONT_DISPLAY}>
+            <h2 className="text-4xl md:text-5xl font-bold mt-6 tracking-tight text-white" style={FONT_DISPLAY}>
               Benefits of interning at growtez
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
             {[
-              { icon: <MapPin size={28} className="text-teal-500" />, title: "Remote Work", desc: "Work from anywhere with flexible hours" },
-              { icon: <Award size={28} className="text-teal-500" />, title: "Certificate", desc: "Get an official internship certificate" },
-              { icon: <Rocket size={28} className="text-teal-500" />, title: "Real Projects", desc: "Work on actual client projects" },
-              { icon: <Users size={28} className="text-teal-500" />, title: "Mentorship", desc: "Learn from experienced professionals" },
+              { icon: <MapPin size={28} className="text-teal-400" />, title: "Remote Work", desc: "Work from anywhere with flexible hours" },
+              { icon: <Award size={28} className="text-teal-400" />, title: "Certificate", desc: "Get an official internship certificate" },
+              { icon: <Rocket size={28} className="text-teal-400" />, title: "Real Projects", desc: "Work on actual client projects" },
+              { icon: <Users size={28} className="text-teal-400" />, title: "Mentorship", desc: "Learn from experienced professionals" },
             ].map((benefit, i) => (
-              <div key={i} className="p-8 rounded-3xl bg-slate-50 border border-black/5 flex flex-col items-center text-center hover:-translate-y-2 transition-transform duration-300">
-                <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6">
+              <div key={i} className="p-8 rounded-3xl bg-white/5 border border-white/10 flex flex-col items-center text-center hover:-translate-y-2 hover:border-white/20 transition-all duration-300">
+                <div className="w-16 h-16 rounded-2xl bg-white/10 shadow-sm flex items-center justify-center mb-6">
                   {benefit.icon}
                 </div>
-                <h3 className="text-xl font-bold text-black mb-3" style={FONT_DISPLAY}>{benefit.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed" style={FONT_BODY}>{benefit.desc}</p>
+                <h3 className="text-xl font-bold text-white mb-3" style={FONT_DISPLAY}>{benefit.title}</h3>
+                <p className="text-slate-300 text-sm leading-relaxed" style={FONT_BODY}>{benefit.desc}</p>
               </div>
             ))}
           </div>
 
           {/* ── APPLICATION FORM ── */}
-          <div className="max-w-3xl mx-auto bg-white rounded-[2rem] p-8 md:p-12 shadow-2xl border border-black/5">
+          <div className="max-w-3xl mx-auto bg-white/5 rounded-[2rem] p-8 md:p-12 shadow-2xl border border-white/10 backdrop-blur-sm">
             <div className="mb-10 text-center">
-              <h3 className="text-3xl font-bold text-black mb-4" style={FONT_DISPLAY}>Apply for Internship</h3>
-              <p className="text-slate-500" style={FONT_BODY}>Fill out the form below and we'll get back to you within 48 hours</p>
+              <h3 className="text-3xl font-bold text-white mb-4" style={FONT_DISPLAY}>Apply for Internship</h3>
+              <p className="text-slate-300" style={FONT_BODY}>Fill out the form below and we'll get back to you within 48 hours</p>
             </div>
 
             {submitted && (
-              <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-4 text-emerald-800 animate-in fade-in slide-in-from-top-4 duration-300" style={FONT_BODY}>
+              <div className="mb-8 p-6 bg-emerald-950/40 border border-emerald-500/30 rounded-2xl flex items-center gap-4 text-emerald-300 animate-in fade-in slide-in-from-top-4 duration-300" style={FONT_BODY}>
                 <div className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
                   <Check size={20} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-base" style={FONT_DISPLAY}>Application Submitted!</h4>
-                  <p className="text-sm text-emerald-700">Thank you for applying. Our team will review your application and contact you soon.</p>
+                  <h4 className="font-bold text-base text-white" style={FONT_DISPLAY}>Application Submitted!</h4>
+                  <p className="text-sm text-emerald-400">Thank you for applying. Our team will review your application and contact you soon.</p>
                 </div>
               </div>
             )}
 
             {error && (
-              <div className="mb-8 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3 text-rose-700 text-sm font-medium" style={FONT_BODY}>
-                <AlertCircle size={20} className="shrink-0 text-rose-500" />
+              <div className="mb-8 p-4 bg-rose-950/40 border border-rose-500/30 rounded-xl flex items-center gap-3 text-rose-300 text-sm font-medium" style={FONT_BODY}>
+                <AlertCircle size={20} className="shrink-0 text-rose-400" />
                 <span>{error}</span>
               </div>
             )}
@@ -289,26 +287,26 @@ export default function CareersPage() {
             <form className="flex flex-col gap-6" style={FONT_BODY} onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-black">Full Name *</label>
+                  <label className="text-sm font-semibold text-white">Full Name *</label>
                   <input
                     type="text"
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
                     required
-                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-teal-400 focus:outline-none transition-colors"
                     placeholder="Enter your full name"
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-black">Email Address *</label>
+                  <label className="text-sm font-semibold text-white">Email Address *</label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-teal-400 focus:outline-none transition-colors"
                     placeholder="Enter your email address"
                   />
                 </div>
@@ -316,33 +314,33 @@ export default function CareersPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-black">Phone Number *</label>
+                  <label className="text-sm font-semibold text-white">Phone Number *</label>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-teal-400 focus:outline-none transition-colors"
                     placeholder="Enter your phone number"
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-black">Position Applying For *</label>
+                  <label className="text-sm font-semibold text-white">Position Applying For *</label>
                   <div className="relative">
                     <select
                       name="position"
                       value={formData.position}
                       onChange={handleChange}
                       required
-                      className={`w-full px-5 py-4 pr-12 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors appearance-none cursor-pointer ${formData.position ? "text-black" : "text-slate-400"
+                      className={`w-full px-5 py-4 pr-12 rounded-xl bg-white/5 border border-white/10 focus:border-teal-400 focus:outline-none transition-colors appearance-none cursor-pointer ${formData.position ? "text-white" : "text-slate-500"
                         }`}
                     >
-                      <option value="" disabled className="text-slate-400">Select a position</option>
-                      <option value="Web Development Intern" className="text-black">Web Development Intern</option>
-                      <option value="App Development Intern" className="text-black">App Development Intern</option>
-                      <option value="UI/UX Design Intern" className="text-black">UI/UX Design Intern</option>
-                      <option value="Digital Marketing Intern" className="text-black">Digital Marketing Intern</option>
+                      <option value="" disabled className="bg-zinc-900 text-slate-500">Select a position</option>
+                      <option value="Web Development Intern" className="bg-zinc-900 text-white">Web Development Intern</option>
+                      <option value="App Development Intern" className="bg-zinc-900 text-white">App Development Intern</option>
+                      <option value="UI/UX Design Intern" className="bg-zinc-900 text-white">UI/UX Design Intern</option>
+                      <option value="Digital Marketing Intern" className="bg-zinc-900 text-white">Digital Marketing Intern</option>
                     </select>
                     <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-5 h-5" />
                   </div>
@@ -352,7 +350,7 @@ export default function CareersPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-black">LinkedIn Profile</label>
+                    <label className="text-sm font-semibold text-white">LinkedIn Profile</label>
                     <span className="text-xs text-slate-400">Link to your public LinkedIn profile</span>
                   </div>
                   <input
@@ -360,13 +358,13 @@ export default function CareersPage() {
                     name="linkedin"
                     value={formData.linkedin}
                     onChange={handleChange}
-                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-teal-400 focus:outline-none transition-colors"
                     placeholder="e.g. linkedin.com/in/yourname"
                   />
                 </div>
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-black">Portfolio / GitHub / Projects</label>
+                    <label className="text-sm font-semibold text-white">Portfolio / GitHub / Projects</label>
                     <span className="text-xs text-slate-400">Link to your website, GitHub, Behance, or Figma</span>
                   </div>
                   <input
@@ -374,7 +372,7 @@ export default function CareersPage() {
                     name="portfolio"
                     value={formData.portfolio}
                     onChange={handleChange}
-                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-teal-400 focus:outline-none transition-colors"
                     placeholder="e.g. github.com/yourname or portfolio link"
                   />
                 </div>
@@ -383,16 +381,16 @@ export default function CareersPage() {
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex flex-col">
-                    <label className="text-sm font-semibold text-black">Resume / CV *</label>
+                    <label className="text-sm font-semibold text-white">Resume / CV *</label>
                     <span className="text-xs text-slate-400">
                       {resumeMode === "file" ? "Upload a document (PDF, DOCX, up to 10MB)" : "Paste a shareable link to your resume"}
                     </span>
                   </div>
-                  <div className="flex bg-slate-100 p-1 rounded-xl gap-1 text-xs font-semibold self-start sm:self-auto">
+                  <div className="flex bg-white/5 border border-white/10 p-1 rounded-xl gap-1 text-xs font-semibold self-start sm:self-auto">
                     <button
                       type="button"
                       onClick={() => setResumeMode("file")}
-                      className={`px-3 py-1.5 rounded-lg transition-all ${resumeMode === "file" ? "bg-white text-black shadow-sm" : "text-slate-500 hover:text-black"
+                      className={`px-3 py-1.5 rounded-lg transition-all ${resumeMode === "file" ? "bg-white/20 text-white shadow-sm" : "text-slate-400 hover:text-white"
                         }`}
                     >
                       <UploadCloud size={14} className="inline mr-1" />
@@ -401,7 +399,7 @@ export default function CareersPage() {
                     <button
                       type="button"
                       onClick={() => setResumeMode("link")}
-                      className={`px-3 py-1.5 rounded-lg transition-all ${resumeMode === "link" ? "bg-white text-black shadow-sm" : "text-slate-500 hover:text-black"
+                      className={`px-3 py-1.5 rounded-lg transition-all ${resumeMode === "link" ? "bg-white/20 text-white shadow-sm" : "text-slate-400 hover:text-white"
                         }`}
                     >
                       <LinkIcon size={14} className="inline mr-1" />
@@ -421,20 +419,20 @@ export default function CareersPage() {
                     />
 
                     {resumeFile ? (
-                      <div className="p-4 rounded-xl bg-slate-50 border border-black/10 flex items-center justify-between">
+                      <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
                         <div className="flex items-center gap-3 overflow-hidden">
-                          <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+                          <div className="w-10 h-10 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center shrink-0">
                             <FileText size={20} />
                           </div>
                           <div className="flex flex-col truncate">
-                            <span className="text-sm font-semibold text-black truncate">{resumeFile.name}</span>
+                            <span className="text-sm font-semibold text-white truncate">{resumeFile.name}</span>
                             <span className="text-xs text-slate-400">{(resumeFile.size / (1024 * 1024)).toFixed(2)} MB</span>
                           </div>
                         </div>
                         <button
                           type="button"
                           onClick={() => setResumeFile(null)}
-                          className="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors shrink-0"
+                          className="w-8 h-8 rounded-full hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors shrink-0"
                           title="Remove file"
                         >
                           <X size={16} />
@@ -447,15 +445,15 @@ export default function CareersPage() {
                         onDrop={handleDrop}
                         onClick={() => fileInputRef.current?.click()}
                         className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-2 ${isDragging
-                          ? "border-teal-500 bg-teal-50/50 scale-[0.99]"
-                          : "border-black/10 bg-slate-50/50 hover:border-teal-500/50 hover:bg-slate-50"
+                          ? "border-teal-400 bg-teal-500/10 scale-[0.99]"
+                          : "border-white/15 bg-white/[0.02] hover:border-teal-400/50 hover:bg-white/[0.05]"
                           }`}
                       >
-                        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 mb-1">
-                          <UploadCloud size={24} className={isDragging ? "text-teal-500 animate-bounce" : ""} />
+                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-slate-400 mb-1">
+                          <UploadCloud size={24} className={isDragging ? "text-teal-400 animate-bounce" : ""} />
                         </div>
-                        <p className="text-sm font-semibold text-black">
-                          <span className="text-teal-600 underline">Click to upload</span> or drag and drop your resume
+                        <p className="text-sm font-semibold text-white">
+                          <span className="text-teal-400 underline">Click to upload</span> or drag and drop your resume
                         </p>
                         <p className="text-xs text-slate-400">Supported formats: PDF, DOC, DOCX (Max 10MB)</p>
                       </div>
@@ -463,11 +461,11 @@ export default function CareersPage() {
 
                     {uploadProgress !== null && (
                       <div className="mt-3">
-                        <div className="flex items-center justify-between text-xs font-semibold text-slate-600 mb-1">
+                        <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-1">
                           <span>Uploading resume...</span>
                           <span>{uploadProgress}%</span>
                         </div>
-                        <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
                           <div
                             className="bg-teal-500 h-full transition-all duration-300 rounded-full"
                             style={{ width: `${uploadProgress}%` }}
@@ -483,7 +481,7 @@ export default function CareersPage() {
                     value={formData.resume}
                     onChange={handleChange}
                     required={resumeMode === "link"}
-                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors"
+                    className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-teal-400 focus:outline-none transition-colors"
                     placeholder="e.g. drive.google.com/file/d/your-resume-id"
                   />
                 )}
@@ -491,7 +489,7 @@ export default function CareersPage() {
 
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-black">Why do you want to join growtez? *</label>
+                  <label className="text-sm font-semibold text-white">Why do you want to join growtez? *</label>
                   <span className="text-xs text-slate-400">Share your background, key skills, and why you're interested in this internship.</span>
                 </div>
                 <textarea
@@ -500,7 +498,7 @@ export default function CareersPage() {
                   onChange={handleChange}
                   required
                   rows={4}
-                  className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-black/10 focus:border-teal-500 focus:outline-none transition-colors resize-none"
+                  className="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-teal-400 focus:outline-none transition-colors resize-none"
                   placeholder="Tell us about yourself, your skills, and what you hope to achieve..."
                 />
               </div>

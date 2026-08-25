@@ -178,9 +178,10 @@ export default function Navbar() {
                     visible: { opacity: 1, height: "auto", transition: { duration: 0.6, ease: [0.76, 0, 0.24, 1], staggerChildren: 0.08, delayChildren: 0.15 } }
                   }}
                   style={{ 
-                    background: "#ffffff", 
+                    background: "#121212", 
                     borderRadius: 12, 
-                    boxShadow: "0 12px 40px -8px rgba(0,0,0,0.3)", 
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    boxShadow: "0 12px 40px -8px rgba(0,0,0,0.5)", 
                     minWidth: 130,
                     overflow: "hidden"
                   }}
@@ -201,12 +202,12 @@ export default function Navbar() {
                             padding: "6px 16px", 
                             fontSize: "0.875rem", 
                             fontWeight: 600, 
-                            color: "#000000", 
+                            color: "#ffffff", 
                             textDecoration: "none", 
                             transition: "color 0.15s" 
                           }}
                           onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = TEAL_500)}
-                          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = "#000000")}
+                          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = "#ffffff")}
                         >
                           {l.label}
                         </Link>

@@ -62,8 +62,8 @@ function AnimatedServiceCard({ service, index }: { service: any, index: number }
             <div className="pt-5 md:pt-8">
               <motion.p className="text-base md:text-lg leading-relaxed max-w-2xl" style={{ color }}>{service.desc}</motion.p>
               {service.tag && (
-                <motion.div className="mt-6">
-                  <motion.span className="text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold px-3 py-1.5 rounded-full border border-current" style={{ color: secondaryColor }}>
+                <motion.div className="mt-6 pb-1">
+                  <motion.span className="inline-block text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold px-3 py-1.5 rounded-full border border-current" style={{ color: secondaryColor }}>
                     {service.tag}
                   </motion.span>
                 </motion.div>

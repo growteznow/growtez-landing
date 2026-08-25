@@ -462,9 +462,9 @@ export default function Home() {
                   padding: "16px 32px", borderRadius: 9999,
                   border: `1px solid ${TEAL_500}`, background: TEAL_500,
                   color: "#ffffff", fontSize: "1rem", fontWeight: 600,
-                  textDecoration: "none", transition: "background 0.2s, border-color 0.2s, color 0.2s", ...FONT_BODY,
+                  textDecoration: "none", transition: "all 0.3s ease", ...FONT_BODY,
                 }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = "#000000"; e.currentTarget.style.borderColor = "#000000"; e.currentTarget.style.color = "#ffffff"; }}
+                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.borderColor = "#ffffff"; e.currentTarget.style.color = "#000000"; }}
                   onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = TEAL_500; e.currentTarget.style.borderColor = TEAL_500; e.currentTarget.style.color = "#ffffff"; }}>
                   View All Projects <ArrowRight size={20} />
                 </Link>
@@ -482,8 +482,8 @@ export default function Home() {
                 Ready to transform <br /> <span className="text-teal-500">your business?</span>
               </h2>
               <MagneticButton>
-                <Link href="/contact" className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 bg-teal-500 text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl" style={FONT_BODY}>
-                  <div className="absolute inset-0 bg-black translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"></div>
+                <Link href="/contact" className="group relative inline-flex items-center justify-center gap-4 px-8 py-5 bg-teal-500 text-white hover:text-black rounded-full overflow-hidden transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl" style={FONT_BODY}>
+                  <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"></div>
                   <span className="relative z-10 text-lg font-bold">Start a Project</span>
                   <Rocket size={20} className="relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
                 </Link>
