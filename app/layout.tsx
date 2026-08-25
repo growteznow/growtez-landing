@@ -37,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${inter.variable}`}>
-      <body className="antialiased font-[var(--font-inter)]">
+    <html lang="en" className={`${jakarta.variable} ${inter.variable} overflow-x-clip w-full`}>
+      <body className="antialiased font-[var(--font-inter)] overflow-x-clip w-full">
         {/* Preloader is temporarily disabled as requested */}
         {/* <Preloader /> */}
         <CustomCursor />

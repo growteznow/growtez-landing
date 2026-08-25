@@ -140,7 +140,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="group relative bg-black hover:bg-teal-500 text-white rounded-full w-36 h-36 md:w-44 md:h-44 flex flex-col items-center justify-center gap-2 text-base md:text-lg font-medium transition-all duration-300 shadow-xl cursor-pointer disabled:opacity-80 overflow-hidden"
+                    className="group relative bg-teal-500 hover:bg-black text-white rounded-full w-36 h-36 md:w-44 md:h-44 flex flex-col items-center justify-center gap-2 text-base md:text-lg font-medium transition-all duration-300 shadow-xl cursor-pointer disabled:opacity-80 overflow-hidden"
                     style={FONT_BODY}
                   >
                     {submitted ? (

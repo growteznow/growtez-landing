@@ -1,0 +1,1 @@
+fetch('https://unsplash.com/photos/a-close-up-of-a-computer-screen-with-a-menu-on-it-fvxNerA8uk0').then(r=>r.text()).then(t=>{let m=t.match(/property="og:image" content="([^"]+)"/); console.log(m?m[1]:'not found')})

@@ -2,6 +2,7 @@
 
 import { use, useEffect, useRef } from "react";
 import Link from "next/link";
+// @ts-expect-error: notFound might not be typed for client components but exists at runtime
 import { notFound } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -39,7 +40,10 @@ export default function PortfolioDetailPage({
   const { slug } = use(params);
 
   const project = (portfolio as PortfolioItem[]).find((p) => p.slug === slug);
-  if (!project) notFound();
+  if (!project) {
+    notFound();
+    return null;
+  }
 
   /* Find next project for the footer CTA */
   const currentIdx = (portfolio as PortfolioItem[]).findIndex((p) => p.slug === slug);
@@ -129,8 +133,8 @@ function HeroSection({ project }: { project: PortfolioItem }) {
               color: SLATE_500, textDecoration: "none", fontSize: 14, fontWeight: 500,
               transition: "color 0.2s", ...FONT_BODY,
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#000")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = SLATE_500)}
+            onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = "#000")}
+            onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = SLATE_500)}
           >
             <ArrowLeft size={16} /> Back to Portfolio
           </Link>

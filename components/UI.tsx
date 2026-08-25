@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Star, ArrowRight, CircleCheck } from "lucide-react";
+import { Star, ArrowRight, CircleCheck, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import ParallaxImage from "@/components/ParallaxImage";
 import MagneticButton from "@/components/MagneticButton";
@@ -112,7 +112,7 @@ export function TestimonialCard({ quote, name, role, stars, index }: { quote: st
   );
 }
 
-export function PortfolioCard({ src, title, category, year, url, index }: { src: string; title: string; category: string; year: string; url?: string; index: number }) {
+export function PortfolioCard({ src, title, category, year, url, slug, index, dark }: { src: string; title: string; category: string; year: string; url?: string; slug?: string; index: number; dark?: boolean }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -127,48 +127,39 @@ export function PortfolioCard({ src, title, category, year, url, index }: { src:
   }, [index]);
 
   const inner = (
-    <>
+    <div className="portfolio-item group bg-[#0A3B3B] border border-[#115E5E] p-6 rounded-3xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#0A3B3B]/40" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
       <div style={{ borderRadius: 16, overflow: "hidden", position: "relative" }}>
-        <ParallaxImage src={src} alt={title} className="h-[320px] w-full" intensity={18} />
+        <ParallaxImage src={src} alt={title} className="h-[280px] md:h-[320px] w-full" intensity={18} />
       </div>
-      <div style={{ marginTop: 20, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+      <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
-          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL_500, marginBottom: 4, ...FONT_BODY }}>{category}</p>
-          <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#000000", ...FONT_DISPLAY }}>{title}</h3>
+          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#5eead4", marginBottom: 6, ...FONT_BODY }}>{category}</p>
+          <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#ffffff", ...FONT_DISPLAY }}>{title}</h3>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: "0.875rem", color: SLATE_500 }}>{year}</span>
-          {url && (
-            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: TEAL_500, ...FONT_BODY }}>
-              ↗ Visit
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+          <span style={{ fontSize: "0.875rem", color: "#94a3b8" }}>{year}</span>
+          {(url || slug) && (
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#5eead4", ...FONT_BODY, display: "flex", alignItems: "center", gap: 4 }}>
+              {url ? "Visit" : "View"} <ArrowUpRight size={14} />
             </span>
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 
   return (
     <div ref={cardRef}>
-      {url ? (
+      {slug ? (
+        <Link href={`/portfolio/${slug}`} style={{ textDecoration: "none", display: "block" }}>
+          {inner}
+        </Link>
+      ) : url ? (
         <a href={url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "block" }}>
           {inner}
         </a>
       ) : inner}
     </div>
-  );
-
-  if (!slug) return content;
-
-  return (
-    <Link
-      href={`/portfolio/${slug}`}
-      style={{ textDecoration: "none", color: "inherit", display: "block" }}
-      onMouseEnter={() => { if (imgRef.current) imgRef.current.style.transform = "scale(1.03)"; }}
-      onMouseLeave={() => { if (imgRef.current) imgRef.current.style.transform = "scale(1)"; }}
-    >
-      {content}
-    </Link>
   );
 }
 
