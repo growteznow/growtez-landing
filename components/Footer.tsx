@@ -36,7 +36,7 @@ export default function Footer({ forceRender = false }: { forceRender?: boolean 
           {[
             { heading: "Services", links: [{ label: "Web Development" }, { label: "App Development" }, { label: "AI Integration" }, { label: "Brand Identity" }] },
             { heading: "Company",  links: [{ label: "About", href: "/about" }, { label: "Portfolio", href: "/portfolio" }, { label: "Careers", href: "/careers" }, { label: "Blog", href: "/blog" }] },
-            { heading: "Legal",    links: [{ label: "Privacy Policy", href: "#" }, { label: "Terms of Service", href: "#" }, { label: "Cookie Policy", href: "#" }] },
+            { heading: "Legal",    links: [{ label: "Privacy Policy", href: "/privacy-policy" }, { label: "Terms of Service", href: "/terms-of-service" }, { label: "Cookie Policy", href: "#" }] },
           ].map(col => (
             <div key={col.heading}>
               <h4 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#cbd5e1", marginBottom: 20, ...FONT_BODY }}>{col.heading}</h4>
