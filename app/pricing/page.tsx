@@ -105,8 +105,8 @@ export default function PricingPage() {
                     href={plan.cta === "Contact Sales" ? "/contact" : "/contact"} 
                     className={`w-full py-4 rounded-full text-center font-bold text-sm transition-colors duration-300 block ${
                       plan.highlighted 
-                      ? "bg-teal-500 text-white hover:bg-teal-400" 
-                      : "bg-black text-white hover:bg-black/80"
+                      ? "bg-teal-500 text-white hover:bg-white hover:text-black" 
+                      : "bg-teal-500 text-white hover:bg-black"
                     }`}
                     style={FONT_BODY}
                   >

@@ -18,18 +18,26 @@
 
 /* ─── Base Resets ──────────────────────────────────────────────────────────── */
 @layer base {
-  * {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  *::-webkit-scrollbar {
-    display: none;
-  }
 
   html {
     scroll-behavior: auto;
     /* Lenis handles scroll physics */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.5);
   }
 
   html.lenis,
@@ -40,7 +48,7 @@
   body {
     background-color: #ffffff;
     color: #000000;
-    overflow-x: hidden;
+    overflow-x: clip;
     font-family: var(--font-inter), system-ui, sans-serif;
   }
 
