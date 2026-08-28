@@ -6,8 +6,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { X } from "lucide-react";
-import { TEAL_500, FONT_DISPLAY } from "@/lib/constants";
+import { X, MoreHorizontal } from "lucide-react";
+import { TEAL_400, TEAL_500, FONT_DISPLAY } from "@/lib/constants";
 
 export default function Navbar() {
   const navRef = useRef<HTMLElement>(null);
@@ -87,6 +87,7 @@ export default function Navbar() {
     { label: "About Us", href: "/about"   },
     { label: "Blog",     href: "/blog"    },
     { label: "Careers",  href: "/careers" },
+    { label: "Tools",    href: "/tools"   },
   ];
 
   return (
@@ -138,33 +139,37 @@ export default function Navbar() {
           ))}
 
           {/* More dropdown */}
-          <li style={{ position: "relative" }} onMouseEnter={() => setMoreOpen(true)} onMouseLeave={() => setMoreOpen(false)}>
+          <li style={{ position: "relative", perspective: 1000 }} onMouseEnter={() => setMoreOpen(true)} onMouseLeave={() => setMoreOpen(false)}>
             <button
               style={{ 
-                background: moreOpen ? "rgba(255,255,255,0.15)" : "transparent", 
-                borderRadius: 999,
+                background: "transparent", 
                 border: "none", 
-                fontSize: "0.85rem", 
-                fontWeight: 600, 
-                color: linkColor, 
+                color: moreOpen ? TEAL_500 : linkColor, 
                 display: "flex", 
                 alignItems: "center", 
-                gap: 6, 
+                justifyContent: "center",
                 cursor: "pointer", 
-                transition: "all 0.2s", 
-                padding: "8px 16px",
-                marginLeft: "-16px"
+                transition: "color 0.2s", 
+                padding: "8px", // small padding for hit area
+                margin: 0
               }}
-              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.color = TEAL_500)}
-              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.color = linkColor)}>
-              MORE
-              <motion.svg 
-                animate={{ rotate: moreOpen ? 180 : 0 }}
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.currentTarget.style.color = TEAL_500;
+              }}
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                if (!moreOpen) {
+                  e.currentTarget.style.color = linkColor;
+                }
+              }}
+              aria-label="More options"
+            >
+              <motion.div
+                animate={{ color: moreOpen ? TEAL_500 : linkColor }}
                 transition={{ duration: 0.2 }}
-                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
               >
-                <path d="m6 9 6 6 6-6"/>
-              </motion.svg>
+                <MoreHorizontal size={22} strokeWidth={2} />
+              </motion.div>
             </button>
             <AnimatePresence>
             {moreOpen && (
